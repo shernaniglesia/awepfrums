@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="NewStyle.css">
+    <style>
+        .secondColumn{
+            width: 110px;
+        }
+    </style>
+</head>
+<body>
+    <aside id="sidebar">
+        <nav>
+            <div class="navHeader">
+                <p class="navHeaderTitle">Student Panel</p>
+                <button id="menuBtn" class="menuBtn">☰</button>
+            </div>
+            <a class="navLink" href="StudentDashboard.html"><i class="fas fa-tachometer-alt"></i>Dashboard</a>
+            <a class="navLink active" href="StudentViewRoom.html"><i class="fas fa-door-open"></i>Rooms</a>
+            <a class="navLink" href="StudentViewEquipment.html"><i class="fas fa-boxes"></i>Equipments</a>
+            <a class="navLink" href="StudentViewEquipmentReservation.html"><i class="fas fa-tools"></i>Equipment Reservation</a>
+        </nav>
+    </aside>
+
+    <div id="overlay" class="overlay"></div>
+
+    <main id="main">
+        <div id="mainHeader">
+
+            <div class="mainHeaderLeft">
+                <button id="menuBtn2" class="menuBtn2">☰</button>
+                <h3 class="mainHeaderLeftTitle">AWE-PFRUMS</h3>
+            </div>
+
+            <div class="searchContainer">
+                <i class="fa-solid fa-magnifying-glass" id="searchIcon"></i>
+                <input id="searchInput" type="search" placeholder="Search...">
+            </div>
+
+            <div class="mainHeaderRight">
+                <!-- Notification Button -->
+                <div class="notif-container" id="notif-bell">
+                        <i class="fas fa-bell"></i> <span id="notif-count" class="badge">0</span>
+                    <div id="notif-dropdown" class="dropdown hidden">
+                        <div class="dropdown-header">Notifications</div>
+                        <ul id="notif-list"></ul>
+                    </div>
+                </div>
+
+                <!-- Profile Dropdown -->
+                <div class="profile-container">
+                    <div class="profile-avatar" id="profileAvatar">a</div>
+
+                    <div class="profile-dropdown" id="profileDropdown">
+                        <div class="profile-info">
+                            <div class="mini-profile-avatar" id="miniProfileAvatar">A</div>
+                            <div class="sub-profile-info">
+                                <div class="profile-name" id="profileName">Shernan  C. Iglesia</div>
+                                <div class="profile-role" id="profileRole">Admin</div>
+                            </div>
+                        </div>
+                        <a href="StudentChangePassword.html" class="dropdown-item">
+                            <i class="fas fa-key"></i>
+                            Change Password
+                        </a>
+                        <a href="#" class="dropdown-item" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Logout
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <div class="mainContent">
+            <div class="mainContentHeader">
+                <p class="mainContentHeaderText"><i class="fas fa-door-open"></i> Rooms</p>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th class="firstColumn">Room</th>
+                    </tr>
+                </thead>
+
+                <tbody id="dataTableBody"></tbody>
+            </table>
+
+            <div class="pagination-container">
+                <div class="pagination-info">
+                    Showing <span id="startIndex">0</span> to <span id="endIndex">0</span> of <span id="totalItems">0</span> rooms
+                </div>
+                <div class="pagination-controls" id="paginationControls">
+                </div>
+            </div>
+        </div>
+
+        <div id="feedbackContainer"></div>
+        <div id="logoutContainer"></div>
+
+    </main>
+    <script src="NewScript.js"></script>
+    <script>
+        const API = "http://localhost:5000";
+        const token = localStorage.getItem("accessToken");
+        const role = localStorage.getItem("userRole");
+
+        fetch("Modal.html")
+        .then(res => res.text())
+        .then(html => {
+            document.getElementById("feedbackContainer").innerHTML = html;
+            document.getElementById("logoutContainer").innerHTML = html;
+
+            if (!token || role !== "student") {
+                showFeedback("warning", "Access denied.", "Students only!");
+
+                setTimeout(() => {
+                    window.location.href = "Login.html";
+                }, 1500);
+            }
+        });
+
+        window.addEventListener("resize", () => {
+           renderTable();
+        });
+
+        let rooms = [];
+        let fullRooms = [];
+        let activeSemester = null;
+
+        const dataTableBody = document.getElementById("dataTableBody");
+        const searchInput = document.getElementById("searchInput");
+
+        async function fetchRooms() {
+            try {
+                const semRes = await fetch(`${API}/sem/active`);
+                if(semRes.ok){
+                    activeSemester = await semRes.json();
+                } else {
+                    activeSemester = null;
+                }
+
+                const roomRes = await fetch(`${API}/rooms`);
+                if(roomRes.ok){
+                    rooms = await roomRes.json();
+                    fullRooms = [...rooms];
+                    renderTable();
+                }
+
+            } catch(err){
+                console.error("Error fetching data:", err);
+                showFeedback("error", "Network Error", "Unable to connect to the server.");
+            }
+        } 
+
+        function renderTable() {
+            const dataTableBody = document.getElementById("dataTableBody");
+            dataTableBody.innerHTML = "";
+            const isMobile = window.innerWidth < 768;
+
+            const totalItems = rooms.length;
+            const totalPages = Math.ceil(totalItems / rowsPerPage);
+            
+            if (currentPage > totalPages) currentPage = totalPages || 1;
+
+            const start = (currentPage - 1) * rowsPerPage;
+            const end = start + rowsPerPage;
+            const paginatedRooms = rooms.slice(start, end);
+
+            paginatedRooms.forEach(room => {
+                const tr = document.createElement("tr");
+
+                const tdName = document.createElement("td");
+                tdName.classList.add("firstColumn");
+                tdName.innerText = room.room_name;
+                tr.appendChild(tdName);
+
+                const encodedName = encodeURIComponent(room.room_name);
+                let dataToPass = `roomId=${room.room_id}&roomName=${encodedName}`;
+
+                if (activeSemester) {
+                    Object.keys(activeSemester).forEach(key => {
+                        dataToPass += `&${encodeURIComponent(key)}=${encodeURIComponent(activeSemester[key])}`;
+                    });
+                }
+                
+                tr.addEventListener("click", () => {
+                        window.location.href=`StudentViewRoomDetail.html?${dataToPass}`;
+                });
+
+                dataTableBody.appendChild(tr);
+            });
+
+            updatePaginationUI(totalItems, totalPages);
+        }
+
+        searchInput.addEventListener("input", (e) => {
+            const term = e.target.value.toLowerCase();
+            rooms = fullRooms.filter(room => 
+                room.room_name.toLowerCase().includes(term)
+            );
+            currentPage = 1;
+            renderTable();
+        });
+
+        initUserProfile();
+        fetchNotifications();
+        fetchRooms();
+    </script>
+</body>
+</html>

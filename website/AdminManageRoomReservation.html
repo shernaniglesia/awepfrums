@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="NewStyle.css">
+    <style>
+        @media (max-width: 830px) {
+            th:nth-child(1), td:nth-child(1),td:nth-child(2) { 
+                display: table-cell;
+            }
+            th:nth-child(2), td:nth-child(2),
+            th:nth-child(3), td:nth-child(3),
+            th:nth-child(4), td:nth-child(4),
+            th:nth-child(5), td:nth-child(5),
+            th:nth-child(6), td:nth-child(6),
+            th:nth-child(7), td:nth-child(7),
+            th:nth-child(8), td:nth-child(8) {
+                display: none;
+            }
+            .firstColumn {
+                width: 70%;
+            }
+        }
+
+    </style>
+</head>
+<body>
+    <aside id="sidebar">
+        <nav>
+            <div class="navHeader">
+                <p class="navHeaderTitle">Admin Panel</p>
+                <button id="menuBtn" class="menuBtn">☰</button>
+            </div>
+            <a class="navLink" href="AdminDashboard.html"><i class="fas fa-tachometer-alt"></i>Dashboard</a>
+            <a class="navLink" href="AdminManageUser.html"><i class="fas fa-users"></i>Users</a>
+            <a class="navLink" href="AdminManageRoom.html"><i class="fas fa-door-open"></i>Rooms</a>
+            <a class="navLink active" href="AdminManageRoomReservation.html"><i class="fas fa-calendar-check"></i>Room Reservation</a>
+            <a class="navLink" href="AdminManageEquipment.html"><i class="fas fa-boxes"></i>Equipments</a>
+            <a class="navLink" href="AdminManageEquipmentReservation.html"><i class="fas fa-tools"></i>Equipment Reservation</a>
+            <a class="navLink" href="AdminManageSemester.html"><i class="fas fa-calendar-alt"></i>Semesters</a>
+            <a class="navLink" href="AdminManageSubject.html"><i class="fas fa-book"></i>Subjects</a>
+            <a class="navLink" href="AdminManageYearSection.html"><i class="fas fa-layer-group"></i>Year & Sections</a>
+        </nav>
+    </aside>
+
+    <div id="overlay" class="overlay"></div>
+
+    <main id="main">
+        <div id="mainHeader">
+
+            <div class="mainHeaderLeft">
+                <button id="menuBtn2" class="menuBtn2">☰</button>
+                <h3 class="mainHeaderLeftTitle">AWE-PFRUMS</h3>
+            </div>
+
+            <div class="searchContainer">
+                <i class="fa-solid fa-magnifying-glass" id="searchIcon"></i>
+                <input id="searchInput" type="search" placeholder="Search...">
+            </div>
+
+            <div class="mainHeaderRight">
+                <!-- Notification Button -->
+                <div class="notif-container" id="notif-bell">
+                        <i class="fas fa-bell"></i> <span id="notif-count" class="badge">0</span>
+                    <div id="notif-dropdown" class="dropdown hidden">
+                        <div class="dropdown-header">Notifications</div>
+                        <ul id="notif-list"></ul>
+                    </div>
+                </div>
+
+                <!-- Profile Dropdown -->
+                <div class="profile-container">
+                    <div class="profile-avatar" id="profileAvatar">a</div>
+
+                    <div class="profile-dropdown" id="profileDropdown">
+                        <div class="profile-info">
+                            <div class="mini-profile-avatar" id="miniProfileAvatar">A</div>
+                            <div class="sub-profile-info">
+                                <div class="profile-name" id="profileName">Shernan  C. Iglesia</div>
+                                <div class="profile-role" id="profileRole">Admin</div>
+                            </div>
+                        </div>
+                        <a href="AdminChangePassword.html" class="dropdown-item">
+                            <i class="fas fa-key"></i>
+                            Change Password
+                        </a>
+                        <a href="#" class="dropdown-item" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Logout
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <div class="mainContent">
+            <div class="mainContentHeader">
+                <p class="mainContentHeaderText"><i class="fas fa-calendar-check"></i> Room Reservation</p>
+                <button class="mainContentHeaderText" id="addButton">
+                    <i class="fa-solid fa-history"></i> 
+                    <a href="AdminManageRoomReservationLog.html" style="color: #1e3c72;">Logs</a>
+                </button>
+            </div>
+            <div class="sortContainer">
+                <select id="statusFilter">
+                    <option value="all">All status</option>
+                    <option value="pending">Pending</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+
+                <input type="date" id="dateFilter" />
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th class="firstColumn">Room</th>
+                        <th class="secondColumn">Instructor</th>
+                        <th class="thirdColumn">Subject</th>
+                        <th class="fourthColumn">YS</th>
+                        <th class="fifthColumn">Date</th>
+                        <th class="sixthColumn">Time</th>
+                        <th class="seventhColumn">Request Date</th>
+                        <th class="eighthColumn">Status</th>
+                        <th class="lastColumn">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody id="dataTableBody"></tbody>
+            </table>
+
+            <div class="pagination-container">
+                <div class="pagination-info">
+                    Showing <span id="startIndex">0</span> to <span id="endIndex">0</span> of <span id="totalItems">0</span> room reservation logs
+                </div>
+                <div class="pagination-controls" id="paginationControls">
+                </div>
+            </div>
+        </div>
+
+        <div id="feedbackContainer"></div>
+        <div id="logoutContainer"></div>
+
+    </main>
+    <script src="NewScript.js"></script>
+    <script>
+        const API = "http://localhost:5000";
+        const token = localStorage.getItem("accessToken");
+        const role = localStorage.getItem("userRole");
+
+        fetch("Modal.html")
+        .then(res => res.text())
+        .then(html => {
+            document.getElementById("feedbackContainer").innerHTML = html;
+            document.getElementById("logoutContainer").innerHTML = html;
+
+            if (!token || role !== "admin") {
+                showFeedback("warning", "Access denied.", "Admins only!");
+
+                setTimeout(() => {
+                    window.location.href = "Login.html";
+                }, 1500);
+            }
+        });
+
+        let fullData = [];
+        let filteredData = [];
+        const tbody = document.getElementById("dataTableBody");
+        const statusFilter = document.getElementById("statusFilter");
+        const dateFilter = document.getElementById("dateFilter");
+        const searchInput = document.getElementById("searchInput");
+
+        statusFilter.addEventListener("change", () => { currentPage = 1; applyFilters(); });
+        dateFilter.addEventListener("change", () => { currentPage = 1; applyFilters(); });
+        searchInput.addEventListener("input", () => { currentPage = 1; applyFilters(); });
+        window.addEventListener("resize", renderTable);
+
+        function fTime(timeStr){
+            const [hour, minute] = timeStr.split(":");
+            let h = parseInt(hour);
+            const ampm = h >= 12 ? "PM" : "AM";
+            h = h % 12 || 12;
+            return `${h}:${minute} ${ampm}`;
+        }
+
+        function formatDate(date){
+            if(!date) return '';
+            const d = new Date(date);
+            if(isNaN(d)) return date;
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            const formattedDate = new Intl.DateTimeFormat('en-US', options).format(d);
+            return formattedDate;
+        }
+        
+        function convertReservationCreatedAt(dateToConvert) {
+            return new Date(dateToConvert).toLocaleString('en-US', {
+                timeZone: 'Asia/Manila',
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true,
+            });
+        }
+
+        function setDefaultDate() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            const formattedToday = `${year}-${month}-${day}`;
+            
+            dateFilter.value = formattedToday;
+        }
+
+        function sameDate(itemDateStr, selectedDateStr) {
+            if (!itemDateStr || !selectedDateStr) return false;
+
+            const itemDate = new Date(itemDateStr);
+            const [year, month, day] = selectedDateStr.split('-').map(Number);
+
+            return itemDate.getFullYear() === year &&
+                (itemDate.getMonth() + 1) === month &&
+                itemDate.getDate() === day;
+        }
+
+        function applyFilters() {
+            const query = searchInput.value.trim().toLowerCase();
+            const selectedStatus = statusFilter.value;
+            const selectedDate = dateFilter.value;
+
+            filteredData = fullData.filter(item => {
+                const matchesQuery =
+                    query === "" ||
+                    item.room_name.toLowerCase().includes(query) ||
+                    item.instructor_name.toLowerCase().includes(query) ||
+                    item.subject_code.toLowerCase().includes(query);
+
+                const matchesStatus =
+                    selectedStatus === "all" ||
+                    item.room_reservation_status.toLowerCase() === selectedStatus.toLowerCase();
+
+                const matchesDate = selectedDate === "" || 
+                    sameDate(item.room_reservation_created_at, selectedDate);
+
+                return matchesQuery && matchesStatus && matchesDate;
+            });
+            renderTable();
+        }
+
+        function renderTable() {
+            tbody.innerHTML = "";
+            const isMobile = window.innerWidth < 830;
+
+            const totalItems = filteredData.length;
+            const totalPages = Math.ceil(totalItems / rowsPerPage);
+            if (currentPage > totalPages) currentPage = totalPages || 1;
+
+            const start = (currentPage - 1) * rowsPerPage;
+            const end = start + rowsPerPage;
+            const paginatedData = filteredData.slice(start, end);
+
+            paginatedData.forEach(item => {
+                let tr = document.createElement("tr");
+                tr.innerHTML = isMobile ? `
+                    <td class="firstColumn">
+                        ${item.room_name}<br>
+                        ${item.instructor_name}<br>
+                        ${item.subject_code}<br>
+                        ${item.year_section_name}<br>
+                        ${formatDate(item.room_reservation_date)}<br>
+                        ${fTime(item.room_reservation_start_time)} - ${fTime(item.room_reservation_end_time)}<br>
+                        ${convertReservationCreatedAt(item.room_reservation_created_at)}<br>
+                        ${item.room_reservation_status}
+                    </td>
+                    <td class="reservationActions lastColumn"></td>
+                ` : `
+                    <td class="firstColumn">${item.room_name}</td>
+                    <td class="secondColumn">${item.instructor_name}</td>
+                    <td class="thirdColumn">${item.subject_code}</td>
+                    <td class="fourthColumn">${item.year_section_name}</td>
+                    <td class="fifthColumn">${formatDate(item.room_reservation_date)}</td>
+                    <td class="sixthColumn">${fTime(item.room_reservation_start_time)} - ${fTime(item.room_reservation_end_time)}</td>
+                    <td class="seventhColumn">${convertReservationCreatedAt(item.room_reservation_created_at)}</td>
+                    <td class="eighthColumn">${item.room_reservation_status}</td>
+                    <td class="reservationActions lastColumn"></td>
+                `;
+                const actionsCell = tr.querySelector(".reservationActions");
+                if(item.room_reservation_status === "pending"){
+                    const approveBtn = document.createElement("button");
+                    approveBtn.setAttribute('id','approveBtn');
+                    approveBtn.classList.add("editButton");
+                    approveBtn.innerHTML = '<i class="fa-solid fa-check"></i> Approve';
+                    approveBtn.onclick = () => handleAction(item, "approve");
+
+                    const rejectBtn = document.createElement("button");
+                    rejectBtn.setAttribute('id','rejectBtn');
+                    rejectBtn.classList.add("editButton");
+                    rejectBtn.innerHTML = '<i class="fa-solid fa-close"></i> Reject';
+                    rejectBtn.onclick = () => handleAction(item, "reject");
+
+                    actionsCell.appendChild(approveBtn);
+                    actionsCell.appendChild(rejectBtn);
+                }
+                tbody.appendChild(tr);
+            });
+
+            updatePaginationUI(totalItems, totalPages);
+        }
+
+        function updatePaginationUI(totalItems, totalPages) {
+            document.getElementById("totalItems").innerText = totalItems;
+            document.getElementById("startIndex").innerText = totalItems === 0 ? 0 : (currentPage - 1) * rowsPerPage + 1;
+            document.getElementById("endIndex").innerText = Math.min(currentPage * rowsPerPage, totalItems);
+
+            const controls = document.getElementById("paginationControls");
+            controls.innerHTML = "";
+
+            if (totalPages <= 1) return;
+
+            for (let i = 1; i <= totalPages; i++) {
+                const btn = document.createElement("button");
+                btn.innerText = i;
+                btn.className = `pagination-btn ${i === currentPage ? 'active' : ''}`;
+                btn.onclick = () => {
+                    currentPage = i;
+                    renderTable();
+                };
+                controls.appendChild(btn);
+            }
+        }
+
+        async function fetchReservations(){
+            try {
+                const res = await fetch(`${API}/room-reservations`);
+                fullData = await res.json();
+                applyFilters(); 
+            } catch (err) {
+                showFeedback("error", "Network Error", "Unable to connect to the server.");
+            }
+        }
+
+        async function handleAction(item, action){
+            try {
+                const res = await fetch(
+                    `${API}/room-reservations/${item.room_reservation_id}/${action}`,
+                    {
+                        method: "PUT",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify({
+                            uName: CURRENT_USER_NAME,
+                            iid: item.instructor_id,
+                            iName: item.instructor_name,
+                            rName: item.room_name,
+                            rDate: item.room_reservation_date,
+                            sTime: item.room_reservation_start_time,
+                            eTime: item.room_reservation_end_time
+                        })
+                    }
+                );
+                const data = await res.json();
+                if(res.ok){
+                    showFeedback("success", "Success!", data.message);
+                }else{
+                    showFeedback("error", "Error", data.message || "Something went wrong.");
+                }
+                fetchReservations();
+
+            } catch (err) {
+                console.error("Action error:", err);
+                showFeedback("error", "Network Error", "Unable to connect to the server.");
+            }
+        }
+
+        setDefaultDate();
+        initUserProfile();
+        fetchNotifications();
+        fetchReservations();
+    </script>
+</body>
+</html>

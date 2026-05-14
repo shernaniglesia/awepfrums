@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="NewStyle.css">
+    <style>
+        .firstColumn{
+            width: 30%;
+            word-wrap: break-word;
+        }
+        .secondColumn{
+            width: 170px;
+            text-align: center;
+        }
+        .thirdColumn{
+            width: 35%;
+            word-wrap: break-word;
+        }
+        .fourthColumn{
+            width: 110px;
+            text-align: center;
+        }
+        @media (max-width: 768px) {
+            .firstColumn{
+                width: 75%;
+                word-wrap: break-word;
+            }
+            .fourthColumn{
+                width: 90px;
+                text-align: center;
+            }
+            th:nth-child(2), td:nth-child(2),
+            td:nth-child(4) { 
+                display: table-cell;
+            }
+
+            th:nth-child(2),
+            th:nth-child(3) {
+                display: none;
+            }
+
+            td.user-cell {
+                white-space: normal;
+                line-height: 1.4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <aside id="sidebar">
+        <nav>
+            <div class="navHeader">
+                <p class="navHeaderTitle">Admin Panel</p>
+                <button id="menuBtn" class="menuBtn">☰</button>
+            </div>
+            <a class="navLink" href="AdminDashboard.html"><i class="fas fa-tachometer-alt"></i>Dashboard</a>
+            <a class="navLink active" href="AdminManageUser.html"><i class="fas fa-users"></i>Users</a>
+            <a class="navLink" href="AdminManageRoom.html"><i class="fas fa-door-open"></i>Rooms</a>
+            <a class="navLink" href="AdminManageRoomReservation.html"><i class="fas fa-calendar-check"></i>Room Reservation</a>
+            <a class="navLink" href="AdminManageEquipment.html"><i class="fas fa-boxes"></i>Equipments</a>
+            <a class="navLink" href="AdminManageEquipmentReservation.html"><i class="fas fa-tools"></i>Equipment Reservation</a>
+            <a class="navLink" href="AdminManageSemester.html"><i class="fas fa-calendar-alt"></i>Semesters</a>
+            <a class="navLink" href="AdminManageSubject.html"><i class="fas fa-book"></i>Subjects</a>
+            <a class="navLink" href="AdminManageYearSection.html"><i class="fas fa-layer-group"></i>Year & Sections</a>
+        </nav>
+    </aside>
+
+    <div id="overlay" class="overlay"></div>
+
+    <main id="main">
+        <div id="mainHeader">
+
+            <div class="mainHeaderLeft">
+                <button id="menuBtn2" class="menuBtn2">☰</button>
+                <h3 class="mainHeaderLeftTitle">AWE-PFRUMS</h3>
+            </div>
+
+            <div class="searchContainer">
+                <i class="fa-solid fa-magnifying-glass" id="searchIcon"></i>
+                <input id="searchInput" type="search" placeholder="Search...">
+            </div>
+
+            <div class="mainHeaderRight">
+                <!-- Notification Button -->
+                <div class="notif-container" id="notif-bell">
+                        <i class="fas fa-bell"></i> <span id="notif-count" class="badge">0</span>
+                    <div id="notif-dropdown" class="dropdown hidden">
+                        <div class="dropdown-header">Notifications</div>
+                        <ul id="notif-list"></ul>
+                    </div>
+                </div>
+
+                <!-- Profile Dropdown -->
+                <div class="profile-container">
+                    <div class="profile-avatar" id="profileAvatar">a</div>
+
+                    <div class="profile-dropdown" id="profileDropdown">
+                        <div class="profile-info">
+                            <div class="mini-profile-avatar" id="miniProfileAvatar">A</div>
+                            <div class="sub-profile-info">
+                                <div class="profile-name" id="profileName">Shernan  C. Iglesia</div>
+                                <div class="profile-role" id="profileRole">Admin</div>
+                            </div>
+                        </div>
+                        <a href="AdminChangePassword.html" class="dropdown-item">
+                            <i class="fas fa-key"></i>
+                            Change Password
+                        </a>
+                        <a href="#" class="dropdown-item" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Logout
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <div class="mainContent">
+            <div class="mainContentHeader">
+                <p class="mainContentHeaderText"><i class="fas fa-user"></i> User Management</p>
+                <button class="mainContentHeaderText" id="addButton">
+                    <i class="fa-solid fa-plus"></i> Add User</button>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th class="firstColumn">Name</th>
+                        <th class="secondColumn">Role</th>
+                        <th class="thirdColumn">Email</th>
+                        <th class="fourthColumn">Action</th>
+                    </tr>
+                </thead>
+
+                <tbody id="dataTableBody"></tbody>
+            </table>
+
+            <div class="pagination-container">
+                <div class="pagination-info">
+                    Showing <span id="startIndex">0</span> to <span id="endIndex">0</span> of <span id="totalItems">0</span> users
+                </div>
+                <div class="pagination-controls" id="paginationControls">
+                </div>
+            </div>
+        </div>
+
+        <div id="feedbackContainer"></div>
+        <div id="logoutContainer"></div>
+
+        <div id="userModal" class="custom-modal">
+            <div class="modal-content">
+                <span id="closeModal" class="close-btn">&times;</span>
+                <h3 id="modalTitle" class="modal-title">Add User</h3>
+
+                <form id="addUserForm">
+                    <label>Name</label>
+                    <input type="text" id="name" class="input-field" placeholder="Full name">
+                    <p id="formErrorName" class="error-msg"></p>
+
+                    <label id="roleLabel">Role</label>
+                    <select id="role" class="input-field input-field-picker">
+                        <option value="">Select role</option>
+                        <option value="admin">Admin</option>
+                        <option value="instructor">Instructor</option>
+                        <option value="student">Student</option>
+                    </select>
+                    <p id="formErrorRole" class="error-msg"></p>
+                    <label>Email</label>
+                    <input type="email" id="email" class="input-field" placeholder="Email">
+                    <p id="formErrorEmail" class="error-msg"></p>
+                    <label id="passwordLabel">Password</label>
+                    <div class="passwordContainer">
+                        <input type="password" id="password" class="input-field" placeholder="********">
+                        <span id="togglePassword"><i class="bi bi-eye-slash-fill"></i></span>
+                    </div>
+                    <p id="formErrorPassword" class="error-msg"></p>
+
+                    <button type="submit" class="modal-btn" id="modalBtn">Add User</button>
+
+
+                </form>
+            </div>
+        </div>
+
+    </main>
+    <script src="NewScript.js"></script>
+    <script>
+        const API = "http://localhost:5000";
+        const token = localStorage.getItem("accessToken");
+        const role = localStorage.getItem("userRole");
+
+        fetch("Modal.html")
+        .then(res => res.text())
+        .then(html => {
+            document.getElementById("feedbackContainer").innerHTML = html;
+            document.getElementById("logoutContainer").innerHTML = html;
+
+            if (!token || role !== "admin") {
+                showFeedback("warning", "Access denied.", "Admins only!");
+
+                setTimeout(() => {
+                    window.location.href = "Login.html";
+                }, 1500);
+            }
+        });
+
+        window.addEventListener("resize", () => {
+           renderTable();
+        });
+
+        let users = [];
+        let fullUsers = [];
+
+        const dataTableBody = document.getElementById("dataTableBody");
+        const searchInput = document.getElementById("searchInput");
+        const addButton = document.getElementById("addButton");
+
+        const modalTitle = document.getElementById("modalTitle");
+        const modalBtn = document.getElementById("modalBtn");
+        const userModal = document.getElementById("userModal");
+        const closeModal = document.getElementById("closeModal");
+        const addUserForm = document.getElementById("addUserForm");
+
+        const nameInput = document.getElementById("name");
+        const roleInput = document.getElementById("role");
+        const emailInput = document.getElementById("email");
+        const passwordInput = document.getElementById("password");
+        const togglePassword = document.getElementById("togglePassword");
+
+        const formErrorName = document.getElementById("formErrorName");
+        const formErrorRole = document.getElementById("formErrorRole");
+        const formErrorEmail = document.getElementById("formErrorEmail");
+        const formErrorPassword = document.getElementById("formErrorPassword");
+
+        let editMode = false;
+        let editUserId = null;
+
+        togglePassword.addEventListener("click", () => {
+            const icon = togglePassword.querySelector("i");
+
+            const isHidden = passwordInput.type === "password";
+            passwordInput.type = isHidden ? "text" : "password";
+
+            if (isHidden) {
+                icon.classList.remove("bi-eye-fill");
+                icon.classList.add("bi-eye-slash-fill");
+            } else {
+                icon.classList.remove("bi-eye-slash-fill");
+                icon.classList.add("bi-eye-fill");
+            }
+        });
+        
+        async function fetchUsers() {
+            try {
+                const userRes = await fetch(`${API}/users`);
+                if(userRes.ok){
+                    users = await userRes.json();
+                    console.log(users);
+                    fullUsers = [...users];
+                    renderTable();
+                }
+
+            } catch(err){
+                console.error("Error fetching data:", err);
+                showFeedback("error", "Network Error", "Unable to connect to the server.");
+            }
+        }
+
+        function renderTable() {
+            const dataTableBody = document.getElementById("dataTableBody");
+            dataTableBody.innerHTML = "";
+            const isMobile = window.innerWidth < 768;
+
+            const totalItems = users.length;
+            const totalPages = Math.ceil(totalItems / rowsPerPage);
+            
+            if (currentPage > totalPages) currentPage = totalPages || 1;
+
+            const start = (currentPage - 1) * rowsPerPage;
+            const end = start + rowsPerPage;
+            const paginatedUsers = users.slice(start, end);
+
+            paginatedUsers.forEach(user => {
+                const tr = document.createElement("tr");
+
+                if (isMobile) {
+                    const tdCombined = document.createElement("td");
+
+                    tdCombined.innerHTML = `
+                        <div class="data-cell">${user.name}<br>
+                            <small>
+                                ${user.email}<br>
+                                ${user.role}
+                            <small>
+                        </div>    
+                    `;
+
+                    tr.appendChild(tdCombined);
+
+                } else {
+                    const tdName = document.createElement("td");
+                    tdName.innerText = user.name;
+                    tr.appendChild(tdName);
+
+                    const tdEmail = document.createElement("td");
+                    tdEmail.innerText = user.email;
+                    tr.appendChild(tdEmail);
+
+                    const tdRole = document.createElement("td");
+                    tdRole.innerText = user.role;
+                    tr.appendChild(tdRole);
+                }
+
+                const tdAction = document.createElement("td");
+                tdAction.classList.add("fourthColumn");
+                const editBtn = document.createElement("button");
+                editBtn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i> Edit';
+                editBtn.classList.add("editButton");
+                editBtn.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    openEditModal(user);
+                });
+
+                tdAction.appendChild(editBtn);
+                tr.appendChild(tdAction);
+
+                dataTableBody.appendChild(tr);
+            });
+
+            updatePaginationUI(totalItems, totalPages);
+        }
+
+        addButton.addEventListener("click", () => {
+            document.getElementById("roleLabel").style.display = "flex";
+            roleInput.style.display = "flex";
+            document.getElementById("passwordLabel").style.display = "flex";
+            passwordInput.style.display = "flex";
+            togglePassword.style.display = "flex";
+            editMode = false;
+            editUserId = null;
+            nameInput.value = "";
+            roleInput.value = "";
+            emailInput.value = "";
+            passwordInput.value = "";
+            formErrorName.innerText = "";
+            formErrorRole.innerText = "";
+            formErrorEmail.innerText = "";
+            formErrorPassword.innerText = "";
+            modalTitle.innerText = "Add User";
+            modalBtn.innerText = "Add User";
+            userModal.style.display = "flex";
+        });
+
+        function openEditModal(user){
+            document.getElementById("roleLabel").style.display = "none";
+            roleInput.style.display = "none";
+            document.getElementById("passwordLabel").style.display = "none";
+            passwordInput.style.display = "none";
+            togglePassword.style.display = "none";
+
+            editMode = true;
+            editUserId = user.id;
+            nameInput.value = user.name;
+            emailInput.value = user.email;
+            formErrorName.innerText = "";
+            formErrorRole.innerText = "";
+            formErrorEmail.innerText = "";
+            formErrorPassword.innerText = "";
+            modalTitle.innerText = "Edit User";
+            modalBtn.innerText = "Update User";
+            userModal.style.display = "flex";
+        }
+
+        closeModal.addEventListener("click", () => {
+            userModal.style.display = "none";
+        });
+
+        addUserForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+
+            const name = nameInput.value.trim();
+            const role = roleInput.value;
+            const email = emailInput.value.trim();
+            const password= passwordInput.value.trim();
+
+            formErrorName.innerText = "";
+            formErrorRole.innerText = "";
+            formErrorEmail.innerText = "";
+            formErrorPassword.innerText = "";
+
+            if (!name) {
+                formErrorName.innerText = "Full name is required";
+                return;
+            }
+
+            if (name.length < 3) {
+                formErrorName.innerText = "Name must be at least 3 characters";
+                return;
+            }
+
+            if (!role) {
+                formErrorRole.innerText = "Role is required";
+                return;
+            }
+
+            const validRoles = ["admin", "instructor", "student"];
+            if (!validRoles.includes(role.toLowerCase())) {
+                formErrorRole.innerText = "Invalid role";
+                return;
+            }
+
+            if (!email) {
+                formErrorEmail.innerText = "Email is required";
+                return;
+            }
+            const emailFormat = /^\S+@\S+\.\S+$/;
+            if (!emailFormat.test(email)) {
+                formErrorEmail.innerText = "Invalid email format";
+                return;
+            }
+
+            const emailDomain = /^[A-Za-z0-9._%+-]+@cbsua\.edu\.ph$/i;
+            if (!emailDomain.test(email)) {
+                formErrorEmail.innerText = "Email must end with @cbsua.edu.ph";
+                return;
+            }
+
+            if (!password) {
+                formErrorPassword.innerText = "Password is required";
+                return;
+            }
+
+            if (password.length < 8) {
+                formErrorPassword.innerText = "Password must be at least 8 characters";
+                return;
+            }
+
+            if (!/[A-Z]/.test(password)) {
+                formErrorPassword.innerText = "Must contain at least one uppercase letter";
+                return;
+            }
+
+            if (!/[a-z]/.test(password)) {
+                formErrorPassword.innerText = "Must contain at least one lowercase letter";
+                return;
+            }
+
+            if (!/[0-9]/.test(password)) {
+                formErrorPassword.innerText = "Must contain at least one number";
+                return;
+            }
+            
+            if (!/[@$!%*?&]/.test(password)) {
+                formErrorPassword.innerText = "Must contain at least one special character";
+                return;
+            }
+
+            try {
+                let url = `${API}/users`;
+                let method = "POST";
+                if(editMode && editUserId){
+                    url = `${API}/users/${editUserId}`;
+                    method = "PUT";
+                }
+
+                const res = await fetch(url, {
+                    method,
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name, role, email, password })
+                });
+                const data = await res.json();
+                if(!res.ok){
+                    return showFeedback("error", "Error", data.message || "Something went wrong.");
+                } else {
+                    showFeedback("success", "Success!", editMode? "User updated successfully!" : "User added successfully!");
+                }
+                userModal.style.display = "none";
+                fetchUsers();
+            } catch(err){
+                console.error(err);
+                showFeedback("error", "Network Error", "Unable to connect to the server.");
+            }
+        });
+
+        userModal.addEventListener("click", (e) => {
+            if(e.target === userModal){
+                userModal.style.display = "none";
+            }
+        });
+
+        searchInput.addEventListener("input", (e) => {
+            const term = e.target.value.toLowerCase();
+            
+            users = fullUsers.filter(user => {
+                const nameMatch = user.name.toLowerCase().includes(term);
+                const roleMatch = (user.role || "").toLowerCase().includes(term);
+                const emailMatch = (user.email || "").toLowerCase().includes(term);
+                return nameMatch || roleMatch || emailMatch;
+            });
+
+            currentPage = 1;
+            renderTable();
+        });
+
+        fetchUsers();
+        initUserProfile();
+        fetchNotifications();
+    </script>
+</body>
+</html>

@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="NewStyle.css">
+    <style>
+        .dashboardMainContent {
+            background: #f8fafc;
+            margin: 1.5rem;
+            border-radius: 6px;
+            backdrop-filter: blur(20px);
+        }
+        /* Cards */
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .card {
+            background: var(--white);
+            padding: 2rem;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.08);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border-top: 4px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 60px rgba(0,0,0,0.12);
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary-blue), var(--primary-orange));
+        }
+
+        .card p {
+            color: var(--gray-text);
+            font-size: 0.95rem;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .card h3 {
+            color: var(--dark-text);
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
+        }
+
+        @media (max-width: 768px) {
+            .header-right {
+                justify-content: flex-end;
+            }
+            .cards {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <aside id="sidebar">
+        <nav>
+            <div class="navHeader">
+                <p class="navHeaderTitle">Instructor Panel</p>
+                <button id="menuBtn" class="menuBtn">☰</button>
+            </div>
+            <a class="navLink active" href="InstructorDashboard.html"><i class="fas fa-tachometer-alt"></i>Dashboard</a>
+            <a class="navLink" href="InstructorViewRoom.html"><i class="fas fa-door-open"></i>Rooms</a>
+            <a class="navLink" href="InstructorViewRoomReservation.html"><i class="fas fa-calendar-check"></i>Room Reservation</a>
+            <a class="navLink" href="InstructorViewEquipment.html"><i class="fas fa-boxes"></i>Equipments</a>
+            <a class="navLink" href="InstructorViewEquipmentReservation.html"><i class="fas fa-tools"></i>Equipment Reservation</a>
+        </nav>
+    </aside>
+
+    <div id="overlay" class="overlay"></div>
+
+    <main id="main">
+        <div id="mainHeader">
+
+            <div class="mainHeaderLeft">
+                <button id="menuBtn2" class="menuBtn2">☰</button>
+                <h3 class="mainHeaderLeftTitle">AWE-PFRUMS</h3>
+            </div>
+
+            <div class="mainHeaderRight">
+                <!-- Notification Button -->
+                <div class="notif-container" id="notif-bell">
+                        <i class="fas fa-bell"></i> <span id="notif-count" class="badge">0</span>
+                    <div id="notif-dropdown" class="dropdown hidden">
+                        <div class="dropdown-header">Notifications</div>
+                        <ul id="notif-list"></ul>
+                    </div>
+                </div>
+
+                <!-- Profile Dropdown -->
+                <div class="profile-container">
+                    <div class="profile-avatar" id="profileAvatar">a</div>
+
+                    <div class="profile-dropdown" id="profileDropdown">
+                        <div class="profile-info">
+                            <div class="mini-profile-avatar" id="miniProfileAvatar">A</div>
+                            <div class="sub-profile-info">
+                                <div class="profile-name" id="profileName">Shernan  C. Iglesia</div>
+                                <div class="profile-role" id="profileRole">Admin</div>
+                            </div>
+                        </div>
+                        <a href="InstructorChangePassword.html" class="dropdown-item">
+                            <i class="fas fa-key"></i>
+                            Change Password
+                        </a>
+                        <a href="#" class="dropdown-item" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Logout
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <div class="dashboardMainContent">
+            <div class="cards">
+                <div class="card">
+                    <p>Total Room Reservations</p>
+                    <h3 id="total_room_reservations">124</h3>
+                </div>
+
+                <div class="card">
+                    <p>Total Approved Room Reservations</p>
+                    <h3 id="total_approved_room_reservations">124</h3>
+                </div>
+
+                <div class="card">
+                    <p>Total Pending Room Reservations</p>
+                    <h3 id="total_pending_room_reservations">124</h3>
+                </div>
+
+                <div class="card">
+                    <p>Total Equipment Reservations</p>
+                    <h3 id="total_equipment_reservations">124</h3>
+                </div>
+
+                <div class="card">
+                    <p>Total Approved Equipment Reservations</p>
+                    <h3 id="total_approved_equipment_reservations">124</h3>
+                </div>
+
+                <div class="card">
+                    <p>Total Pending Equipment Reservations</p>
+                    <h3 id="total_pending_equipment_reservations">124</h3>
+                </div>
+                
+            </div>
+        </div>
+
+        <div id="feedbackContainer"></div>
+        <div id="logoutContainer"></div>
+
+    </main>
+    <script src="NewScript.js"></script>
+    <script>
+        const API = "http://localhost:5000";
+        const token = localStorage.getItem("accessToken");
+        const role = localStorage.getItem("userRole");
+
+        function decodeToken(token) {
+            try {
+                const base64Url = token.split('.')[1];
+                const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+                return JSON.parse(atob(base64));
+            } catch (e) {
+                console.error("Invalid token:", e);
+                return null;
+            }
+        }
+        const decoded = decodeToken(token);
+        let userId = decoded.user_id;
+
+        fetch("Modal.html")
+        .then(res => res.text())
+        .then(html => {
+            document.getElementById("feedbackContainer").innerHTML = html;
+            document.getElementById("logoutContainer").innerHTML = html;
+
+            if (!token || role !== "instructor") {
+                showFeedback("warning", "Access denied.", "Instructors only!");
+
+                setTimeout(() => {
+                    window.location.href = "Login.html";
+                }, 1500);
+            }
+        });
+
+        window.addEventListener("resize", () => {
+           
+        });
+        
+        async function fetchStats() {
+            try {
+                const res = await fetch(`${API}/dashboards/instructor/user_id`);
+                const result = await res.json();
+                if(res.ok){
+                    const data = result.data;
+                    document.getElementById("total_room_reservations").innerText =
+                        data.total_room_reservations;
+
+                    document.getElementById("total_approved_room_reservations").innerText =
+                        data.total_approved_room_reservations;
+
+                    document.getElementById("total_pending_room_reservations").innerText =
+                        data.total_pending_room_reservations;
+
+                    document.getElementById("total_equipment_reservations").innerText =
+                        data.total_equipment_reservations;
+
+                    document.getElementById("total_approved_equipment_reservations").innerText =
+                        data.total_approved_equipment_reservations;
+
+                    document.getElementById("total_pending_equipment_reservations").innerText =
+                        data.total_pending_equipment_reservations;
+                }
+
+            } catch(err){
+                console.error("Error fetching data:", err);
+                showFeedback("error", "Network Error", "Unable to connect to the server.");
+            }
+        }
+
+        initUserProfile();
+        fetchNotifications();
+        fetchStats();
+    </script>
+</body>
+</html>

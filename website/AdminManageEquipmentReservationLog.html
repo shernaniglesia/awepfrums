@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="NewStyle.css">
+    <style>
+        .firstColumn {
+            width: 80%;
+        }
+    </style>
+</head>
+<body>
+    <aside id="sidebar">
+        <nav>
+            <div class="navHeader">
+                <p class="navHeaderTitle">Admin Panel</p>
+                <button id="menuBtn" class="menuBtn">☰</button>
+            </div>
+            <a class="navLink" href="AdminDashboard.html"><i class="fas fa-tachometer-alt"></i>Dashboard</a>
+            <a class="navLink" href="AdminManageUser.html"><i class="fas fa-users"></i>Users</a>
+            <a class="navLink" href="AdminManageRoom.html"><i class="fas fa-door-open"></i>Rooms</a>
+            <a class="navLink" href="AdminManageRoomReservation.html"><i class="fas fa-calendar-check"></i>Room Reservation</a>
+            <a class="navLink" href="AdminManageEquipment.html"><i class="fas fa-boxes"></i>Equipments</a>
+            <a class="navLink active" href="AdminManageEquipmentReservation.html"><i class="fas fa-tools"></i>Equipment Reservation</a>
+            <a class="navLink" href="AdminManageSemester.html"><i class="fas fa-calendar-alt"></i>Semesters</a>
+            <a class="navLink" href="AdminManageSubject.html"><i class="fas fa-book"></i>Subjects</a>
+            <a class="navLink" href="AdminManageYearSection.html"><i class="fas fa-layer-group"></i>Year & Sections</a>
+        </nav>
+    </aside>
+
+    <div id="overlay" class="overlay"></div>
+
+    <main id="main">
+        <div id="mainHeader">
+
+            <div class="mainHeaderLeft">
+                <button id="menuBtn2" class="menuBtn2">☰</button>
+                <h3 class="mainHeaderLeftTitle">AWE-PFRUMS</h3>
+            </div>
+
+            <div class="searchContainer">
+                <i class="fa-solid fa-magnifying-glass" id="searchIcon"></i>
+                <input id="searchInput" type="search" placeholder="Search...">
+            </div>
+
+            <div class="mainHeaderRight">
+                <!-- Notification Button -->
+                <div class="notif-container" id="notif-bell">
+                        <i class="fas fa-bell"></i> <span id="notif-count" class="badge">0</span>
+                    <div id="notif-dropdown" class="dropdown hidden">
+                        <div class="dropdown-header">Notifications</div>
+                        <ul id="notif-list"></ul>
+                    </div>
+                </div>
+
+                <!-- Profile Dropdown -->
+                <div class="profile-container">
+                    <div class="profile-avatar" id="profileAvatar">a</div>
+
+                    <div class="profile-dropdown" id="profileDropdown">
+                        <div class="profile-info">
+                            <div class="mini-profile-avatar" id="miniProfileAvatar">A</div>
+                            <div class="sub-profile-info">
+                                <div class="profile-name" id="profileName">Shernan  C. Iglesia</div>
+                                <div class="profile-role" id="profileRole">Admin</div>
+                            </div>
+                        </div>
+                        <a href="AdminChangePassword.html" class="dropdown-item">
+                            <i class="fas fa-key"></i>
+                            Change Password
+                        </a>
+                        <a href="#" class="dropdown-item" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Logout
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <div class="mainContent">
+            <div class="mainContentHeader">
+                <p class="mainContentHeaderText"><i class="fas fa-users"></i> Equipment Reservation Logs</p>
+            </div>
+
+            <div class="sortContainer">
+                <select id="statusFilter">
+                    <option value="all">All status</option>
+                    <option value="reserved">Reserved</option>
+                    <option value="approved">Approved</option>
+                    <option value="rejected">Rejected</option>
+                    <option value="cancelled">Cancelled</option>
+                </select>
+
+                <input type="date" id="dateFilter" />
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th class="firstColumn">Logs</th>
+                        <th class="secondColumn">Date</th>
+                    </tr>
+                </thead>
+
+                <tbody id="dataTableBody"></tbody>
+            </table>
+
+            <div class="pagination-container">
+                <div class="pagination-info">
+                    Showing <span id="startIndex">0</span> to <span id="endIndex">0</span> of <span id="totalItems">0</span> room reservation logs
+                </div>
+                <div class="pagination-controls" id="paginationControls">
+                </div>
+            </div>
+        </div>
+
+        <div id="feedbackContainer"></div>
+        <div id="logoutContainer"></div>
+
+    </main>
+    <script src="NewScript.js"></script>
+    <script>
+        const API = "http://localhost:5000";
+        const token = localStorage.getItem("accessToken");
+        const role = localStorage.getItem("userRole");
+
+        fetch("Modal.html")
+        .then(res => res.text())
+        .then(html => {
+            document.getElementById("feedbackContainer").innerHTML = html;
+            document.getElementById("logoutContainer").innerHTML = html;
+
+            if (!token || role !== "admin") {
+                showFeedback("warning", "Access denied.", "Admins only!");
+
+                setTimeout(() => {
+                    window.location.href = "Login.html";
+                }, 1500);
+            }
+        });
+
+        window.addEventListener("resize", () => {
+           
+        });
+        
+        let fullData = [];
+        let filteredData = [];
+        const tbody = document.getElementById("dataTableBody");
+        const statusFilter = document.getElementById("statusFilter");
+        const dateFilter = document.getElementById("dateFilter");
+        const searchInput = document.getElementById("searchInput");
+
+        statusFilter.addEventListener("change", () => { currentPage = 1; applyFilters(); });
+        dateFilter.addEventListener("change", () => { currentPage = 1; applyFilters(); });
+        searchInput.addEventListener("input", () => { currentPage = 1; applyFilters(); });
+        window.addEventListener("resize", renderTable);
+
+
+        function convertReservationCreatedAt(dateToConvert) {
+            return new Date(dateToConvert).toLocaleString('en-US', {
+                timeZone: 'Asia/Manila',
+                month: 'long',
+                day: 'numeric',
+                year: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true,
+            });
+        }
+
+        function setDefaultDate() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const day = String(today.getDate()).padStart(2, '0');
+            const formattedToday = `${year}-${month}-${day}`;
+            
+            dateFilter.value = formattedToday;
+        }
+
+        function sameDate(itemDateStr, selectedDateStr) {
+            if (!itemDateStr || !selectedDateStr) return false;
+
+            const itemDate = new Date(itemDateStr);
+            const [year, month, day] = selectedDateStr.split('-').map(Number);
+
+            return itemDate.getFullYear() === year &&
+                (itemDate.getMonth() + 1) === month &&
+                itemDate.getDate() === day;
+        }
+
+        function applyFilters() {
+            const query = searchInput.value.trim().toLowerCase();
+            const selectedStatus = statusFilter.value;
+            const selectedDate = dateFilter.value;
+
+            filteredData = fullData.filter(item => {
+                const matchesQuery = query === "" || 
+                    item.equipment_reservation_log_action.toLowerCase().includes(query) ||
+                    convertReservationCreatedAt(item.created_at).toLowerCase().includes(query);
+
+                const matchesStatus = selectedStatus === "all" || 
+                    item.equipment_reservation_log_type?.toLowerCase() === selectedStatus.toLowerCase();
+
+                const matchesDate = selectedDate === "" || sameDate(item.created_at, selectedDate);
+
+                return matchesQuery && matchesStatus && matchesDate;
+            });
+
+            renderTable();
+        }
+
+        function renderTable() {
+            tbody.innerHTML = "";
+            const isMobile = window.innerWidth < 830;
+
+            // Pagination Logic
+            const totalItems = filteredData.length;
+            const totalPages = Math.ceil(totalItems / rowsPerPage);
+            if (currentPage > totalPages) currentPage = totalPages || 1;
+
+            const start = (currentPage - 1) * rowsPerPage;
+            const end = start + rowsPerPage;
+            const paginatedData = filteredData.slice(start, end);
+
+            paginatedData.forEach(item => {
+                let tr = document.createElement("tr");
+                tr.innerHTML = isMobile ? `
+                    <td class="firstColumn">
+                        <strong>${item.equipment_reservation_log_action}</strong><br>
+                        <small>${convertReservationCreatedAt(item.created_at)}</small>
+                    </td>
+                ` : `
+                    <td class="firstColumn">${item.equipment_reservation_log_action}</td>
+                    <td class="secondColumn">${convertReservationCreatedAt(item.created_at)}</td>
+                `;
+                tbody.appendChild(tr);
+            });
+
+            updatePaginationUI(totalItems, totalPages);
+        }
+
+        async function fetchReservationLogs() {
+            try {
+                const res = await fetch(`${API}/equipment-reservations/logs`);
+                fullData = await res.json();
+                applyFilters();
+            } catch (err) {
+                console.error("Fetch error:", err);
+            }
+        }
+
+        setDefaultDate();
+        initUserProfile();
+        fetchNotifications();
+        fetchReservationLogs();
+    </script>
+</body>
+</html>

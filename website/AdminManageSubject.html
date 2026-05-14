@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="NewStyle.css">
+    <style>
+        .secondColumn, .secondColumnTh{
+            width: 110px;
+        }
+    </style>
+</head>
+<body>
+    <aside id="sidebar">
+        <nav>
+            <div class="navHeader">
+                <p class="navHeaderTitle">Admin Panel</p>
+                <button id="menuBtn" class="menuBtn">☰</button>
+            </div>
+            <a class="navLink" href="AdminDashboard.html"><i class="fas fa-tachometer-alt"></i>Dashboard</a>
+            <a class="navLink" href="AdminManageUser.html"><i class="fas fa-users"></i>Users</a>
+            <a class="navLink" href="AdminManageRoom.html"><i class="fas fa-door-open"></i>Rooms</a>
+            <a class="navLink" href="AdminManageRoomReservation.html"><i class="fas fa-calendar-check"></i>Room Reservation</a>
+            <a class="navLink" href="AdminManageEquipment.html"><i class="fas fa-boxes"></i>Equipments</a>
+            <a class="navLink" href="AdminManageEquipmentReservation.html"><i class="fas fa-tools"></i>Equipment Reservation</a>
+            <a class="navLink" href="AdminManageSemester.html"><i class="fas fa-calendar-alt"></i>Semesters</a>
+            <a class="navLink active" href="AdminManageSubject.html"><i class="fas fa-book"></i>Subjects</a>
+            <a class="navLink" href="AdminManageYearSection.html"><i class="fas fa-layer-group"></i>Year & Sections</a>
+        </nav>
+    </aside>
+
+    <div id="overlay" class="overlay"></div>
+
+    <main id="main">
+        <div id="mainHeader">
+
+            <div class="mainHeaderLeft">
+                <button id="menuBtn2" class="menuBtn2">☰</button>
+                <h3 class="mainHeaderLeftTitle">AWE-PFRUMS</h3>
+            </div>
+
+            <div class="searchContainer">
+                <i class="fa-solid fa-magnifying-glass" id="searchIcon"></i>
+                <input id="searchInput" type="search" placeholder="Search...">
+            </div>
+
+            <div class="mainHeaderRight">
+                <!-- Notification Button -->
+                <div class="notif-container" id="notif-bell">
+                        <i class="fas fa-bell"></i> <span id="notif-count" class="badge">0</span>
+                    <div id="notif-dropdown" class="dropdown hidden">
+                        <div class="dropdown-header">Notifications</div>
+                        <ul id="notif-list"></ul>
+                    </div>
+                </div>
+
+                <!-- Profile Dropdown -->
+                <div class="profile-container">
+                    <div class="profile-avatar" id="profileAvatar">a</div>
+
+                    <div class="profile-dropdown" id="profileDropdown">
+                        <div class="profile-info">
+                            <div class="mini-profile-avatar" id="miniProfileAvatar">A</div>
+                            <div class="sub-profile-info">
+                                <div class="profile-name" id="profileName">Shernan  C. Iglesia</div>
+                                <div class="profile-role" id="profileRole">Admin</div>
+                            </div>
+                        </div>
+                        <a href="AdminChangePassword.html" class="dropdown-item">
+                            <i class="fas fa-key"></i>
+                            Change Password
+                        </a>
+                        <a href="#" class="dropdown-item" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Logout
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <div class="mainContent">
+            <div class="mainContentHeader">
+                <p class="mainContentHeaderText"><i class="fas fa-book"></i> Subject Management</p>
+                <button class="mainContentHeaderText" id="addButton">
+                    <i class="fa-solid fa-plus"></i> Add Subject</button>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Subject</th>
+                        <th class="secondColumnTh">Action</th>
+                    </tr>
+                </thead>
+
+                <tbody id="dataTableBody"></tbody>
+            </table>
+
+            <div class="pagination-container">
+                <div class="pagination-info">
+                    Showing <span id="startIndex">0</span> to <span id="endIndex">0</span> of <span id="totalItems">0</span> subjects
+                </div>
+                <div class="pagination-controls" id="paginationControls">
+                </div>
+            </div>
+        </div>
+
+        <div id="feedbackContainer"></div>
+        <div id="logoutContainer"></div>
+
+        <div id="subjectModal" class="custom-modal">
+            <div class="modal-content">
+                <span id="closeModal" class="close-btn">&times;</span>
+                <h3 id="modalTitle" class="modal-title">Add Subject</h3>
+
+                <form id="addSubjectForm">
+                    <label>Subject code</label>
+                    <input type="text" id="subjectCode" class="input-field" placeholder="Subject code">
+                    <p id="formErrorSubjectCode" class="error-msg"></p>
+                    <button type="submit" class="modal-btn" id="modalBtn">Add Subject</button>
+                </form>
+            </div>
+        </div>
+
+    </main>
+    <script src="NewScript.js"></script>
+    <script>
+        const API = "http://localhost:5000";
+        const token = localStorage.getItem("accessToken");
+        const role = localStorage.getItem("userRole");
+
+        fetch("Modal.html")
+        .then(res => res.text())
+        .then(html => {
+            document.getElementById("feedbackContainer").innerHTML = html;
+            document.getElementById("logoutContainer").innerHTML = html;
+
+            if (!token || role !== "admin") {
+                showFeedback("warning", "Access denied.", "Admins only!");
+
+                setTimeout(() => {
+                    window.location.href = "Login.html";
+                }, 1500);
+            }
+        });
+
+        window.addEventListener("resize", () => {
+           renderTable();
+        });
+
+        let subjects = [];
+        let fullSubjects = [];
+
+        const dataTableBody = document.getElementById("dataTableBody");
+        const searchInput = document.getElementById("searchInput");
+        const selectAllCheckbox = document.getElementById("selectAll");
+        const deleteButton = document.getElementById("deleteButton");
+        const addButton = document.getElementById("addButton");
+
+        const modalTitle = document.getElementById("modalTitle");
+        const modalBtn = document.getElementById("modalBtn");
+        const subjectModal = document.getElementById("subjectModal");
+        const closeModal = document.getElementById("closeModal");
+        const addSubjectForm = document.getElementById("addSubjectForm");
+        const subjectCodeInput = document.getElementById("subjectCode");
+        const formErrorSubjectCode = document.getElementById("formErrorSubjectCode");
+
+        let editMode = false;
+        let editSubjectId = null;
+
+        async function fetchSubjects() {
+            try {
+                const subjectRes = await fetch(`${API}/subjects`);
+                if(subjectRes.ok){
+                    subjects = await subjectRes.json();
+                    fullSubjects = [...subjects];
+                    renderTable();
+                }
+
+            } catch(err){
+                console.error("Error fetching data:", err);
+                showFeedback("error", "Network Error", "Unable to connect to the server.");
+            }
+        }
+
+        // function renderTable() {
+        //     dataTableBody.innerHTML = "";
+        //     subjects.forEach(subject => {
+        //         const tr = document.createElement("tr");
+
+        //         const tdName = document.createElement("td");
+        //         tdName.innerText = subject.subject_code;
+        //         tr.appendChild(tdName);
+
+        //         const tdAction = document.createElement("td");
+        //         tdAction.classList.add("secondColumn");
+        //         const editBtn = document.createElement("button");
+        //         editBtn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i> Edit';
+        //         editBtn.classList.add("editButton");
+        //         editBtn.addEventListener("click", (e) => {
+        //             e.stopPropagation();
+        //             openEditModal(subject);
+        //         });
+        //         tdAction.appendChild(editBtn);
+        //         tr.appendChild(tdAction);
+
+        //         dataTableBody.appendChild(tr);
+        //     });
+        // }
+
+        function renderTable() {
+            const dataTableBody = document.getElementById("dataTableBody");
+            dataTableBody.innerHTML = "";
+            const isMobile = window.innerWidth < 768;
+
+            const totalItems = subjects.length;
+            const totalPages = Math.ceil(totalItems / rowsPerPage);
+            
+            if (currentPage > totalPages) currentPage = totalPages || 1;
+
+            const start = (currentPage - 1) * rowsPerPage;
+            const end = start + rowsPerPage;
+            const paginatedSubjects = subjects.slice(start, end);
+
+            paginatedSubjects.forEach(subject => {
+                const tr = document.createElement("tr");
+
+                const tdName = document.createElement("td");
+                tdName.innerText = subject.subject_code;
+                tr.appendChild(tdName);
+
+                const tdAction = document.createElement("td");
+                tdAction.classList.add("secondColumn");
+                const editBtn = document.createElement("button");
+                editBtn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i> Edit';
+                editBtn.classList.add("editButton");
+                editBtn.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    openEditModal(subject);
+                });
+                tdAction.appendChild(editBtn);
+                tr.appendChild(tdAction);
+
+                dataTableBody.appendChild(tr);
+            });
+
+            updatePaginationUI(totalItems, totalPages);
+        }
+
+        addButton.addEventListener("click", () => {
+            editMode = false;
+            editSubjectId = null;
+            subjectCodeInput.value = "";
+            formErrorSubjectCode.innerText = "";
+            modalTitle.innerText = "Add Subject";
+            modalBtn.innerText = "Add Subject";
+            subjectModal.style.display = "flex";
+        });
+
+        function openEditModal(subject){
+            editMode = true;
+            editSubjectId = subject.subject_id;
+            subjectCodeInput.value = subject.subject_code;
+            formErrorSubjectCode.innerText = "";
+            modalTitle.innerText = "Edit Subject";
+            modalBtn.innerText = "Update Subject";
+            subjectModal.style.display = "flex";
+        }
+
+        closeModal.addEventListener("click", () => {
+            subjectModal.style.display = "none";
+        });
+
+        addSubjectForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const subjectCode = subjectCodeInput.value.trim();
+            if(subjectCode.length < 3){
+                formErrorSubjectCode.innerText = "Subject code must be at least 3 characters";
+                return;
+            }
+            try {
+                let url = `${API}/subjects`;
+                let method = "POST";
+                if(editMode && editSubjectId){
+                    url = `${API}/subjects/${editSubjectId}`;
+                    method = "PUT";
+                }
+
+                const res = await fetch(url, {
+                    method,
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ subjectCode })
+                });
+                const data = await res.json();
+                if(!res.ok){
+                    showFeedback("error", "Error", data.message || "Something went wrong.");
+                } else {
+                    showFeedback("success", "Success!", editMode ? "Subject updated successfully!" : "Subject added successfully!");
+                    subjectModal.style.display = "none";
+                    fetchSubjects();
+                }
+            } catch(err){
+                console.error(err);
+                showFeedback("error", "Network Error", "Unable to connect to the server.");
+            }
+        });
+
+        subjectModal.addEventListener("click", (e) => {
+            if(e.target === subjectModal){
+                subjectModal.style.display = "none";
+            }
+        });
+
+        searchInput.addEventListener("input", (e) => {
+            const term = e.target.value.toLowerCase();
+            subjects = fullSubjects.filter(subject => 
+                subject.subject_code.toLowerCase().includes(term)
+            );
+            currentPage = 1;
+            renderTable();
+        });
+
+        fetchSubjects();
+        initUserProfile();
+        fetchNotifications();
+    </script>
+</body>
+</html>

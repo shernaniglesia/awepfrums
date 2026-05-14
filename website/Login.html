@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>CIT CBSUA-Sipocot - Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary-blue: #1e3c72;
+            --secondary-blue: #2a5298;
+            --primary-orange: #ff6b35;
+            --orange-hover: #ff8c5a;
+            --light-bg: #f8fafc;
+            --white: #ffffff;
+            --dark-text: #333;
+            --gray-text: #666;
+            --light-gray: #e5e7eb;
+            --border-gray: #d1d5db;
+            --error-red: #ef4444;
+            --success-green: #10b981;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+            background: linear-gradient(135deg, rgba(30,60,114,0.95), rgba(42,82,152,0.95)), 
+                        url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600"><rect fill="%23e3f2fd" width="1200" height="600"/><circle fill="%231e3c72" opacity="0.1" cx="200" cy="150" r="80"/><circle fill="%232a5298" opacity="0.1" cx="1000" cy="400" r="120"/><path fill="%23bbdefb" opacity="0.3" d="M0 300 Q300 200 600 350 Q900 450 1200 300 L1200 600 L0 600 Z"/></svg>');
+            background-size: cover;
+            background-attachment: fixed;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 1rem;
+        }
+
+        .login-container {
+            background: var(--white);
+            padding: 3rem 2.5rem;
+            width: 100%;
+            max-width: 420px;
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 6px;
+            background: linear-gradient(90deg, var(--primary-blue), var(--primary-orange));
+        }
+
+        .logo-header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .login-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary-blue);
+            margin-bottom: 0.5rem;
+        }
+
+        .login-subtitle {
+            color: var(--gray-text);
+            font-size: 0.95rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+            position: relative;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 0.75rem;
+            font-weight: 500;
+            color: var(--dark-text);
+            font-size: 0.9rem;
+        }
+
+        .input-wrapper {
+            position: relative;
+        }
+
+        .input-group input,
+        .input-group select {
+            width: 100%;
+            padding: 1rem 1rem 1rem 3rem;
+            border: 2px solid var(--light-gray);
+            border-radius: 16px;
+            font-size: 1rem;
+            font-family: inherit;
+            background: var(--light-bg);
+            transition: all 0.3s ease;
+            outline: none;
+            appearance: none;
+        }
+
+        .input-group select {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 1rem center;
+            background-repeat: no-repeat;
+            background-size: 1.2em;
+            padding-right: 3rem;
+        }
+
+        .input-group input:focus,
+        .input-group select:focus {
+            border-color: var(--primary-orange);
+            background: var(--white);
+            box-shadow: 0 0 0 4px rgba(255,107,53,0.1);
+            transform: translateY(-1px);
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--gray-text);
+            font-size: 1.1rem;
+            z-index: 2;
+        }
+
+        .toggle-password {
+            position: absolute;
+            right: 1.2rem;
+            top: 50%;
+            transform: translateY(-50%);
+            cursor: pointer;
+            font-size: 1rem;
+            color: var(--primary-orange);
+            user-select: none;
+            transition: color 0.3s ease;
+        }
+
+        .toggle-password:hover {
+            color: var(--orange-hover);
+        }
+
+        .error {
+            font-size: 0.8rem;
+            color: var(--error-red);
+            margin-top: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .forgot-password {
+            text-align: right;
+            margin-bottom: 1.5rem;
+        }
+
+        .forgot-password a {
+            text-decoration: none;
+            color: var(--primary-orange);
+            font-size: 0.9rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .forgot-password a:hover {
+            color: var(--orange-hover);
+            text-decoration: underline;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 1.2rem;
+            background: linear-gradient(135deg, var(--primary-orange), var(--orange-hover));
+            border: none;
+            color: var(--white);
+            border-radius: 16px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            font-family: inherit;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(255,107,53,0.4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .login-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 40px rgba(255,107,53,0.5);
+        }
+
+        .login-btn:active {
+            transform: translateY(0);
+        }
+
+        .login-btn:disabled {
+            background: var(--border-gray);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .spinner {
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-top: 2px solid var(--white);
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: none;
+        }
+
+        .signup-link {
+            text-align: center;
+            margin-top: 2rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--light-gray);
+            font-size: 0.95rem;
+        }
+
+        .signup-link a {
+            color: var(--primary-blue);
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .signup-link a:hover {
+            color: var(--secondary-blue);
+            text-decoration: underline;
+        }
+
+        /* Animations */
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 480px) {
+            body {
+                padding: 0.5rem;
+            }
+            
+            .login-container {
+                padding: 2rem 1.5rem;
+                margin: 1rem;
+            }
+            
+            .login-title {
+                font-size: 1.6rem;
+            }
+        }
+
+        /* Success/Error states */
+        .input-group.success input {
+            border-color: var(--success-green);
+            background: rgba(16,185,129,0.05);
+        }
+
+        .input-group.error input {
+            border-color: var(--error-red);
+            background: rgba(239,68,68,0.05);
+            animation: shake 0.5s ease-in-out;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="login-container">
+        <div class="logo-header">
+            <h1 class="login-title">Welcome Back</h1>
+            <p class="login-subtitle">Sign in to your CIT account</p>
+        </div>
+
+        <form id="loginForm">
+            <div class="input-group">
+                <label>Email Address</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-envelope input-icon"></i>
+                    <input type="email" id="email" placeholder="Enter your email" required>
+                </div>
+                <div class="error" id="emailError"></div>
+            </div>
+
+            <!-- Role -->
+            <div class="input-group">
+                <label>Role</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-user-tag input-icon"></i>
+                    <select id="role" required>
+                        <option value="">Select your role</option>
+                        <option value="admin">Admin</option>
+                        <option value="instructor">Instructor</option>
+                        <option value="student">Student</option>
+                    </select>
+                </div>
+                <div class="error" id="roleError"></div>
+            </div>
+
+            <div class="input-group">
+                <label>Password</label>
+                <div class="input-wrapper">
+                    <i class="fas fa-lock input-icon"></i>
+                    <input type="password" id="password" placeholder="Enter your password" required>
+                    <i class="fas fa-eye-slash toggle-password" data-target="password"></i>
+                </div>
+                <div class="error" id="passwordError"></div>
+            </div>
+
+            <div class="forgot-password">
+                <a href="ForgotPassword.html">
+                    <i class="fas fa-key"></i>
+                    Forgot Password?
+                </a>
+            </div>
+
+            <button type="submit" class="login-btn" id="loginBtn">
+                <span class="btn-text">Sign In</span>
+                <i class="fas fa-sign-in-alt"></i>
+                <span class="spinner" id="spinner"></span>
+            </button>
+
+            <div class="signup-link">
+                Don't have an account? 
+                <a href="Signup.html">Create Account</a>
+            </div>
+        </form>
+    </div>
+
+    <div id="feedbackContainer"></div>
+
+<script>
+    // Your existing JavaScript code remains exactly the same
+    const savedRole = localStorage.getItem("userRole");
+    const token = localStorage.getItem("accessToken");
+
+    if (token && savedRole) {
+        switch (savedRole) {
+            case "admin":
+                window.location.href = "AdminDashboard.html";
+                break;
+            case "instructor":
+                window.location.href = "InstructorDashboard.html";
+                break;
+            case "student":
+                window.location.href = "StudentDashboard.html";
+                break;
+        }
+    }
+
+    const API = "http://localhost:5000";
+    const form = document.getElementById("loginForm");
+    const email = document.getElementById("email");
+    const role = document.getElementById("role");
+    const password = document.getElementById("password");
+    const emailError = document.getElementById("emailError");
+    const roleError = document.getElementById("roleError");
+    const passwordError = document.getElementById("passwordError");
+
+    const loginBtn = document.getElementById("loginBtn");
+    const spinner = document.getElementById("spinner");
+    const btnText = document.querySelector(".btn-text");
+
+    // Eye icon toggle functionality
+    document.querySelectorAll('.toggle-password').forEach(icon => {
+        icon.addEventListener('click', function() {
+            const targetId = this.dataset.target;
+            const field = document.getElementById(targetId);
+            const isPassword = field.type === 'password';
+            
+            field.type = isPassword ? 'text' : 'password';
+            this.classList.toggle('fa-eye-slash', !isPassword);
+            this.classList.toggle('fa-eye', isPassword);
+        });
+    });
+
+
+
+    form.addEventListener("submit", async function(e) {
+        e.preventDefault();
+
+        let valid = true;
+
+        emailError.textContent = "";
+        passwordError.textContent = "";
+        roleError.textContent = "";
+
+        const emailPattern = /^[^ ]+@[^ ]+\.[a-z]{2,3}$/;
+
+        if (email.value.trim() === "") {
+            emailError.textContent = "Email is required.";
+            valid = false;
+        } else if (!email.value.match(emailPattern)) {
+            emailError.textContent = "Enter a valid email address.";
+            valid = false;
+        }
+
+        // Role
+        if (role.value === "") {
+            document.getElementById("roleError").textContent = "Please select a role.";
+            valid = false;
+        }
+
+        if (password.value.trim() === "") {
+            passwordError.textContent = "Password is required.";
+            valid = false;
+        } else if (password.value.length < 8) {
+            passwordError.textContent = "Password must be at least 8 characters.";
+            valid = false;
+        }
+
+        if (!valid) return;
+
+        loginBtn.disabled = true;
+        spinner.style.display = "inline-block";
+        btnText.style.display = "none";
+
+
+        localStorage.clear();
+
+
+
+        try {
+            const res = await fetch(`${API}/auth/login`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    email: email.value,
+                    role: role.value,
+                    password: password.value
+                })
+            });
+            
+            const data = await res.json();
+
+            if (!res.ok) {
+                //alert(data.message || "Invalid credentials");
+                showFeedback("error", "Error!", data.message || "Invalid credentials");
+                loginBtn.disabled = false;
+                spinner.style.display = "none";
+                btnText.style.display = "inline";
+                return;
+            }
+            
+            if (data.requireOTP) {
+                localStorage.setItem("otp_email", data.email);
+                localStorage.setItem("otp_role", data.smallRole);
+                // alert(data.message);
+                showFeedback("success", "Success!", data.message);
+
+                window.location.href = "OTP.html";
+                return;
+            }
+
+            localStorage.setItem("userRole", data.role);
+            localStorage.setItem("accessToken", data.accessToken);
+
+            switch (data.role) {
+                case "admin":
+                    window.location.href = "AdminDashboard.html";
+                    break;
+                case "instructor":
+                    window.location.href = "InstructorDashboard.html";
+                    break;
+                case "student":
+                    window.location.href = "StudentDashboard.html";
+                    break;
+                default:
+                    alert("Unknown role");
+            }
+
+        } catch (err) {
+            console.error(err);
+            showFeedback("error", "Network Error", "Unable to connect to the server.");
+
+            loginBtn.disabled = false;
+            spinner.style.display = "none";
+            btnText.style.display = "inline";
+        }
+    });
+
+    fetch("Modal.html")
+        .then(res => res.text())
+        .then(html => {
+            document.getElementById("feedbackContainer").innerHTML = html;
+    });
+
+    function showFeedback(type, title, message) {
+        const modal = document.getElementById("feedbackModal");
+        const icon = document.getElementById("feedbackIcon");
+        const titleEl = document.getElementById("feedbackTitle");
+        const msgEl = document.getElementById("feedbackMessage");
+
+        icon.className = "bi";
+
+        if (type === "success") {
+            icon.classList.add("bi-check-circle-fill", "feedback-success");
+        } else if (type === "error") {
+            icon.classList.add("bi-x-circle-fill", "feedback-error");
+        } else {
+            icon.classList.add("bi-exclamation-circle-fill", "feedback-warning");
+        }
+
+        titleEl.textContent = title;
+        msgEl.textContent = message;
+
+        modal.style.display = "flex";
+
+        document.getElementById("feedbackClose").onclick = () => {
+            modal.style.display = "none";
+        };
+
+        modal.onclick = (e) => {
+            if (e.target === modal) modal.style.display = "none";
+        };
+    }
+</script>
+
+</body>
+</html>

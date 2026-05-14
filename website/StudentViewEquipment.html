@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="NewStyle.css">
+    <style>
+        .fourthColumn{
+            width: 110px;
+            text-align: center;
+        }
+        @media (max-width: 768px) {
+            th:nth-child(2), td:nth-child(2),
+            td:nth-child(4) { 
+                display: table-cell;
+            }
+
+            th:nth-child(2),
+            th:nth-child(3) {
+                display: none;
+            }
+
+            td.user-cell {
+                white-space: normal;
+                line-height: 1.4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <aside id="sidebar">
+        <nav>
+            <div class="navHeader">
+                <p class="navHeaderTitle">Student Panel</p>
+                <button id="menuBtn" class="menuBtn">☰</button>
+            </div>
+            <a class="navLink" href="StudentDashboard.html"><i class="fas fa-tachometer-alt"></i>Dashboard</a>
+            <a class="navLink" href="StudentViewRoom.html"><i class="fas fa-door-open"></i>Rooms</a>
+            <a class="navLink active" href="StudentViewEquipment.html"><i class="fas fa-boxes"></i>Equipments</a>
+            <a class="navLink" href="StudentViewEquipmentReservation.html"><i class="fas fa-tools"></i>Equipment Reservation</a>
+        </nav>
+    </aside>
+
+    <div id="overlay" class="overlay"></div>
+
+    <main id="main">
+        <div id="mainHeader">
+
+            <div class="mainHeaderLeft">
+                <button id="menuBtn2" class="menuBtn2">☰</button>
+                <h3 class="mainHeaderLeftTitle">AWE-PFRUMS</h3>
+            </div>
+
+            <div class="searchContainer">
+                <i class="fa-solid fa-magnifying-glass" id="searchIcon"></i>
+                <input id="searchInput" type="search" placeholder="Search...">
+            </div>
+
+            <div class="mainHeaderRight">
+                <!-- Notification Button -->
+                <div class="notif-container" id="notif-bell">
+                        <i class="fas fa-bell"></i> <span id="notif-count" class="badge">0</span>
+                    <div id="notif-dropdown" class="dropdown hidden">
+                        <div class="dropdown-header">Notifications</div>
+                        <ul id="notif-list"></ul>
+                    </div>
+                </div>
+
+                <!-- Profile Dropdown -->
+                <div class="profile-container">
+                    <div class="profile-avatar" id="profileAvatar">a</div>
+
+                    <div class="profile-dropdown" id="profileDropdown">
+                        <div class="profile-info">
+                            <div class="mini-profile-avatar" id="miniProfileAvatar">A</div>
+                            <div class="sub-profile-info">
+                                <div class="profile-name" id="profileName">Shernan  C. Iglesia</div>
+                                <div class="profile-role" id="profileRole">Admin</div>
+                            </div>
+                        </div>
+                        <a href="StudentChangePassword.html" class="dropdown-item">
+                            <i class="fas fa-key"></i>
+                            Change Password
+                        </a>
+                        <a href="#" class="dropdown-item" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Logout
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <div class="mainContent">
+            <div class="mainContentHeader">
+                <p class="mainContentHeaderText"><i class="fas fa-boxes"></i> Equipments</p>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th class="firstColumn">Equipment Name</th>
+                        <th class="secondColumn">Description</th>
+                        <th class="thirdColumn">Status</th>
+                        <th class="fourthColumn">Action</th>
+                    </tr>
+                </thead>
+
+                <tbody id="dataTableBody"></tbody>
+            </table>
+
+            <div class="pagination-container">
+                <div class="pagination-info">
+                    Showing <span id="startIndex">0</span> to <span id="endIndex">0</span> of <span id="totalItems">0</span> equipments
+                </div>
+                <div class="pagination-controls" id="paginationControls">
+                </div>
+            </div>
+        </div>
+
+        <div id="feedbackContainer"></div>
+        <div id="logoutContainer"></div>
+        
+        <div id="equipmentModal" class="custom-modal">
+            <div class="modal-content">
+                <span id="closeModal" class="close-btn">&times;</span>
+                <h3 id="modalTitle">Reserve Equipment</h3>
+
+                <form id="ReserveEquipmentForm">
+                    <label>Equipment name</label>
+                    <input type="text" id="equipmentName" class="input-field"  placeholder="Equipment name" disabled>
+                    <p class="error-msg"></p>
+
+                    <label">Start Time</label>
+                    <input type="time" id="startTime" class="input-field">
+                    <p id="formErrorStartTime" class="error-msg"></p>
+
+                    <label">End Time</label>
+                    <input type="time" id="endTime" class="input-field">
+                    <p id="formErrorEndTime" class="error-msg"></p>
+
+                    <button type="submit" class="modal-btn" id="modalBtn">Reserve</button>
+                </form>
+            </div>
+        </div>
+
+    </main>
+    <script src="NewScript.js"></script>
+    <script>
+        const API = "http://localhost:5000";
+        const token = localStorage.getItem("accessToken");
+        const role = localStorage.getItem("userRole");
+
+        fetch("Modal.html")
+        .then(res => res.text())
+        .then(html => {
+            document.getElementById("feedbackContainer").innerHTML = html;
+            document.getElementById("logoutContainer").innerHTML = html;
+
+            if (!token || role !== "student") {
+                showFeedback("warning", "Access denied.", "Students only!");
+
+                setTimeout(() => {
+                    window.location.href = "Login.html";
+                }, 1500);
+            }
+        });
+
+        window.addEventListener("resize", () => {
+           renderTable();
+        });
+
+        let equipments = [];
+        let fullEquipments = [];
+
+        const dataTableBody = document.getElementById("dataTableBody");
+        const equipmentModal = document.getElementById("equipmentModal");
+        const closeModal = document.getElementById("closeModal");
+        const ReserveEquipmentForm = document.getElementById("ReserveEquipmentForm");
+        let equipmentId = null;
+        const equipmentNameInput = document.getElementById("equipmentName");
+        const equipmentStartTimeInput = document.getElementById("startTime"); 
+        const equipmentEndTimeInput = document.getElementById("endTime");
+        const formErrorStartTime = document.getElementById("formErrorStartTime");
+        const formErrorEndTime = document.getElementById("formErrorEndTime");
+
+        async function fetchEquipments() {
+            try {
+                const equipmentRes = await fetch(`${API}/equipments`);
+                if(equipmentRes.ok){
+                    equipments = await equipmentRes.json();
+                    fullEquipments = [...equipments];
+                    renderTable();
+                }
+
+            } catch(err){
+                console.error("Error fetching data:", err);
+                showFeedback("error", "Network Error", "Unable to connect to the server.");
+            }
+        }
+
+
+        function renderTable() {
+            const dataTableBody = document.getElementById("dataTableBody");
+            dataTableBody.innerHTML = "";
+            const isMobile = window.innerWidth < 768;
+
+            const totalItems = equipments.length;
+            const totalPages = Math.ceil(totalItems / rowsPerPage);
+            
+            if (currentPage > totalPages) currentPage = totalPages || 1;
+
+            const start = (currentPage - 1) * rowsPerPage;
+            const end = start + rowsPerPage;
+            const paginatedEquipments = equipments.slice(start, end);
+
+            paginatedEquipments.forEach(equipment => {
+                const tr = document.createElement("tr");
+
+                if (isMobile) {
+                    const tdCombined = document.createElement("td");
+
+                    tdCombined.innerHTML = `
+                        <div class="data-cell">${equipment.equipment_name}<br>
+                            <small>${equipment.equipment_desc}<br>${equipment.equipment_status}<small></div>    
+                    `;
+
+                    tr.appendChild(tdCombined);
+
+                } else {
+
+                    const tdName = document.createElement("td");
+                    tdName.innerText = equipment.equipment_name;
+                    tr.appendChild(tdName);
+
+                    const tdDesc = document.createElement("td");
+                    tdDesc.innerText = equipment.equipment_desc;
+                    tr.appendChild(tdDesc);
+
+                    const tdStatus = document.createElement("td");
+                    tdStatus.innerText = equipment.equipment_status;
+                    tr.appendChild(tdStatus);
+                }
+
+                const tdAction = document.createElement("td");
+                tdAction.classList.add("fourthColumn");
+
+                if(equipment.equipment_status === "available"){
+                    const editBtn = document.createElement("button");
+                    editBtn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i> Reserve';
+                    editBtn.classList.add("editButton");
+                    editBtn.addEventListener("click", (e) => {
+                        e.stopPropagation();
+                        openReserveModal(equipment);
+                    });
+
+                    tdAction.appendChild(editBtn);
+                }
+                tr.appendChild(tdAction);
+                dataTableBody.appendChild(tr);
+            });
+
+            updatePaginationUI(totalItems, totalPages);
+        }
+
+        function openReserveModal(equipment){
+            equipmentId = equipment.equipment_id;
+            equipmentNameInput.value = equipment.equipment_name;
+            equipmentStartTimeInput.value = "";
+            equipmentEndTimeInput.value = "";
+            formErrorStartTime.innerText = "";
+            formErrorEndTime.innerText = "";
+            equipmentModal.style.display = "flex";
+        }
+
+        closeModal.addEventListener("click", () => {
+            equipmentModal.style.display = "none";
+        });
+
+        function getFormattedDate() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = (today.getMonth() + 1).toString().padStart(2, '0');
+            const day = today.getDate().toString().padStart(2, '0');
+
+            return `${year}-${month}-${day}`;
+        }
+
+        ReserveEquipmentForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const start = equipmentStartTimeInput.value;
+            const end = equipmentEndTimeInput.value;
+
+            formErrorStartTime.innerText = "";
+            formErrorEndTime.innerText = "";
+
+            const toMinutes = t => {
+                const [h, m] = t.split(":").map(Number);
+                return h * 60 + m;
+            };
+
+            const MIN_TIME = toMinutes("07:30");
+            const MAX_TIME = toMinutes("15:00");
+
+            if (!start || !end) {
+                formErrorStartTime.innerText = "Start and end time are required.";
+                return;
+            }
+
+            const startMin = toMinutes(start);
+            const endMin = toMinutes(end);
+
+            if (startMin < MIN_TIME || startMin > MAX_TIME) {
+                formErrorStartTime.innerText = "Start time must be between 7:30 AM and 5:00 PM.";
+                return;
+            }
+
+            if (endMin < MIN_TIME || endMin > MAX_TIME) {
+                formErrorEndTime.innerText = "End time must be between 7:30 AM and 5:00 PM.";
+                return;
+            }
+
+            if (endMin <= startMin) {
+                formErrorEndTime.innerText = "End time must be later than start time.";
+                return;
+            }
+
+            submitReservation();
+            
+        });
+
+        async function submitReservation() {
+            const equipment_id = equipmentId;
+            const equipment_name = document.getElementById("equipmentName").value;
+            const equipment_reservation_reference_id = CURRENT_USER_ID;
+            const equipment_reservation_user_type = CURRENT_USER_ROLE;
+            const equipment_reservation_date = new Date();
+            equipment_reservation_date.setHours(equipment_reservation_date.getHours() + 8)
+            const equipment_reservation_start_time = document.getElementById("startTime").value;
+            const equipment_reservation_end_time = document.getElementById("endTime").value;
+            const current_user_name = CURRENT_USER_NAME;
+            try {
+                const res = await fetch(`${API}/equipment-reservations`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ equipment_id, equipment_name, equipment_reservation_user_type, 
+                        equipment_reservation_reference_id, equipment_reservation_date, 
+                        equipment_reservation_start_time, equipment_reservation_end_time,
+                        current_user_name
+                     })
+                });
+                const data = await res.json();
+                if(!res.ok){
+                    showFeedback("error", "Error", data.message || "Something went wrong.");
+                } else {
+                    showFeedback("success", "Success!", "Equipment added successfully!");
+                }
+                equipmentModal.style.display = "none";
+                fetchEquipments();
+            } catch(err){
+                console.error(err);
+                showFeedback("error", "Network Error", "Unable to connect to the server.");
+            }
+        }
+
+        equipmentModal.addEventListener("click", (e) => {
+            if(e.target === equipmentModal){
+                equipmentModal.style.display = "none";
+            }
+        });
+        
+        searchInput.addEventListener("input", (e) => {
+            const term = e.target.value.toLowerCase();
+            
+            equipments = fullEquipments.filter(equipment => {
+                const nameMatch = equipment.equipment_name.toLowerCase().includes(term);
+                const descMatch = (equipment.equipment_desc || "").toLowerCase().includes(term);
+                return nameMatch || descMatch;
+            });
+
+            currentPage = 1;
+            renderTable();
+        });
+        
+        fetchEquipments();
+        initUserProfile();
+        fetchNotifications();
+    </script>
+</body>
+</html>

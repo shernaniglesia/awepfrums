@@ -1,0 +1,404 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="NewStyle.css">
+    <style>
+        .fourthColumn{
+            width: 110px;
+            text-align: center;
+        }
+        @media (max-width: 768px) {
+            th:nth-child(2), td:nth-child(2),
+            td:nth-child(4) { 
+                display: table-cell;
+            }
+
+            th:nth-child(2),
+            th:nth-child(3) {
+                display: none;
+            }
+
+            td.user-cell {
+                white-space: normal;
+                line-height: 1.4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <aside id="sidebar">
+        <nav>
+            <div class="navHeader">
+                <p class="navHeaderTitle">Admin Panel</p>
+                <button id="menuBtn" class="menuBtn">☰</button>
+            </div>
+            <a class="navLink" href="AdminDashboard.html"><i class="fas fa-tachometer-alt"></i>Dashboard</a>
+            <a class="navLink" href="AdminManageUser.html"><i class="fas fa-users"></i>Users</a>
+            <a class="navLink" href="AdminManageRoom.html"><i class="fas fa-door-open"></i>Rooms</a>
+            <a class="navLink" href="AdminManageRoomReservation.html"><i class="fas fa-calendar-check"></i>Room Reservation</a>
+            <a class="navLink active" href="AdminManageEquipment.html"><i class="fas fa-boxes"></i>Equipments</a>
+            <a class="navLink" href="AdminManageEquipmentReservation.html"><i class="fas fa-tools"></i>Equipment Reservation</a>
+            <a class="navLink" href="AdminManageSemester.html"><i class="fas fa-calendar-alt"></i>Semesters</a>
+            <a class="navLink" href="AdminManageSubject.html"><i class="fas fa-book"></i>Subjects</a>
+            <a class="navLink" href="AdminManageYearSection.html"><i class="fas fa-layer-group"></i>Year & Sections</a>
+        </nav>
+    </aside>
+
+    <div id="overlay" class="overlay"></div>
+
+    <main id="main">
+        <div id="mainHeader">
+
+            <div class="mainHeaderLeft">
+                <button id="menuBtn2" class="menuBtn2">☰</button>
+                <h3 class="mainHeaderLeftTitle">AWE-PFRUMS</h3>
+            </div>
+
+            <div class="searchContainer">
+                <i class="fa-solid fa-magnifying-glass" id="searchIcon"></i>
+                <input id="searchInput" type="search" placeholder="Search...">
+            </div>
+
+            <div class="mainHeaderRight">
+                <!-- Notification Button -->
+                <div class="notif-container" id="notif-bell">
+                        <i class="fas fa-bell"></i> <span id="notif-count" class="badge">0</span>
+                    <div id="notif-dropdown" class="dropdown hidden">
+                        <div class="dropdown-header">Notifications</div>
+                        <ul id="notif-list"></ul>
+                    </div>
+                </div>
+
+                <!-- Profile Dropdown -->
+                <div class="profile-container">
+                    <div class="profile-avatar" id="profileAvatar">a</div>
+
+                    <div class="profile-dropdown" id="profileDropdown">
+                        <div class="profile-info">
+                            <div class="mini-profile-avatar" id="miniProfileAvatar">A</div>
+                            <div class="sub-profile-info">
+                                <div class="profile-name" id="profileName">Shernan  C. Iglesia</div>
+                                <div class="profile-role" id="profileRole">Admin</div>
+                            </div>
+                        </div>
+                        <a href="AdminChangePassword.html" class="dropdown-item">
+                            <i class="fas fa-key"></i>
+                            Change Password
+                        </a>
+                        <a href="#" class="dropdown-item" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Logout
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <div class="mainContent">
+            <div class="mainContentHeader">
+                <p class="mainContentHeaderText"><i class="fas fa-boxes"></i> Equipment Management</p>
+                <button class="mainContentHeaderText" id="addButton">
+                    <i class="fa-solid fa-plus"></i> Add Equipment</button>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th class="firstColumn">Equipment Name</th>
+                        <th class="secondColumn">Description</th>
+                        <th class="thirdColumn">Status</th>
+                        <th class="fourthColumn">Action</th>
+                    </tr>
+                </thead>
+
+                <tbody id="dataTableBody"></tbody>
+            </table>
+
+            <div class="pagination-container">
+                <div class="pagination-info">
+                    Showing <span id="startIndex">0</span> to <span id="endIndex">0</span> of <span id="totalItems">0</span> equipments
+                </div>
+                <div class="pagination-controls" id="paginationControls">
+                </div>
+            </div>
+        </div>
+
+        <div id="feedbackContainer"></div>
+        <div id="logoutContainer"></div>
+        
+        <div id="equipmentModal" class="custom-modal">
+            <div class="modal-content">
+                <span id="closeModal" class="close-btn">&times;</span>
+                <h3 id="modalTitle">Add Equipment</h3>
+
+                <form id="addEquipmentForm">
+                    <label>Equipment name</label>
+                    <input type="text" id="equipmentName" class="input-field" placeholder="Equipment name">
+                    <p id="formErrorEquipmentName" class="error-msg"></p>
+
+                    <label>Equipment desciption</label>
+                    <input type="text" id="equipmentDescription" class="input-field" placeholder="Equipment desciption">
+                    <p id="formErrorEquipmentDescription" class="error-msg"></p>
+
+                    <label>Status</label>
+                    <select id="equipmentStatus" class="input-field input-field-picker">
+                        <option value="">Select status</option>
+                        <option value="available">Available</option>
+                        <option value="out of service">Out of service</option>
+                    </select>
+                    <p id="formErrorEquipmentStatus" class="error-msg"></p>
+
+                    <button type="submit" class="modal-btn" id="modalBtn">Add Equipment</button>
+                </form>
+            </div>
+        </div>
+
+    </main>
+    <script src="NewScript.js"></script>
+    <script>
+        const API = "http://localhost:5000";
+        const token = localStorage.getItem("accessToken");
+        const role = localStorage.getItem("userRole");
+
+        fetch("Modal.html")
+        .then(res => res.text())
+        .then(html => {
+            document.getElementById("feedbackContainer").innerHTML = html;
+            document.getElementById("logoutContainer").innerHTML = html;
+
+            if (!token || role !== "admin") {
+                showFeedback("warning", "Access denied.", "Admins only!");
+
+                setTimeout(() => {
+                    window.location.href = "Login.html";
+                }, 1500);
+            }
+        });
+
+        window.addEventListener("resize", () => {
+           renderTable();
+        });
+
+        let equipments = [];
+        let fullEquipments = [];
+
+        const dataTableBody = document.getElementById("dataTableBody");
+        const searchInput = document.getElementById("searchInput");
+        const selectAllCheckbox = document.getElementById("selectAll");
+        const deleteButton = document.getElementById("deleteButton");
+        const addButton = document.getElementById("addButton");
+
+        const modalTitle = document.getElementById("modalTitle");
+        const modalBtn = document.getElementById("modalBtn");
+        const equipmentModal = document.getElementById("equipmentModal");
+        const closeModal = document.getElementById("closeModal");
+        const addEquipmentForm = document.getElementById("addEquipmentForm");
+        const equipmentNameInput = document.getElementById("equipmentName");
+        const equipmentDescriptionInput = document.getElementById("equipmentDescription");
+        const equipmentStatusInput = document.getElementById("equipmentStatus");
+        const formErrorEquipmentName = document.getElementById("formErrorEquipmentName");
+        const formErrorEquipmentDescription = document.getElementById("formErrorEquipmentDescription");
+        const formErrorEquipmentStatus = document.getElementById("formErrorEquipmentStatus");
+
+        let editMode = false;
+        let editEquipmentId = null;
+
+        async function fetchEquipments() {
+            try {
+                const equipmentRes = await fetch(`${API}/equipments`);
+                if(equipmentRes.ok){
+                    equipments = await equipmentRes.json();
+                    fullEquipments = [...equipments];
+                    renderTable();
+                }
+
+            } catch(err){
+                console.error("Error fetching data:", err);
+                showFeedback("error", "Network Error", "Unable to connect to the server.");
+            }
+        }
+
+        function renderTable() {
+            const dataTableBody = document.getElementById("dataTableBody");
+            dataTableBody.innerHTML = "";
+            const isMobile = window.innerWidth < 768;
+
+            const totalItems = equipments.length;
+            const totalPages = Math.ceil(totalItems / rowsPerPage);
+            
+            if (currentPage > totalPages) currentPage = totalPages || 1;
+
+            const start = (currentPage - 1) * rowsPerPage;
+            const end = start + rowsPerPage;
+            const paginatedEquipments = equipments.slice(start, end);
+
+            paginatedEquipments.forEach(equipment => {
+                const tr = document.createElement("tr");
+
+                if (isMobile) {
+                    const tdCombined = document.createElement("td");
+
+                    tdCombined.innerHTML = `
+                        <div class="data-cell">${equipment.equipment_name}<br>
+                            <small>${equipment.equipment_desc}<br>${equipment.equipment_status}<small></div>    
+                    `;
+
+                    tr.appendChild(tdCombined);
+
+                } else {
+
+                    const tdName = document.createElement("td");
+                    tdName.innerText = equipment.equipment_name;
+                    tr.appendChild(tdName);
+
+                    const tdDesc = document.createElement("td");
+                    tdDesc.innerText = equipment.equipment_desc;
+                    tr.appendChild(tdDesc);
+
+                    const tdStatus = document.createElement("td");
+                    tdStatus.innerText = equipment.equipment_status;
+                    tr.appendChild(tdStatus);
+                }
+
+                const tdAction = document.createElement("td");
+                tdAction.classList.add("fourthColumn");
+
+                const editBtn = document.createElement("button");
+                editBtn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i> Edit';
+                editBtn.classList.add("editButton");
+                editBtn.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    openEditModal(equipment);
+                });
+
+                tdAction.appendChild(editBtn);
+                tr.appendChild(tdAction);
+
+                tr.addEventListener("click", () => {
+                    checkbox.checked = !checkbox.checked;
+                    toggleSelection(equipment.equipment_id);
+                });
+
+                dataTableBody.appendChild(tr);
+            });
+
+            updatePaginationUI(totalItems, totalPages);
+        }
+
+        addButton.addEventListener("click", () => {
+            editMode = false;
+            editEquipmentId = null;
+            equipmentNameInput.value = "";
+            equipmentDescriptionInput.value = "";
+            equipmentStatusInput.value = "";
+            formErrorEquipmentName.innerText = "";
+            formErrorEquipmentDescription.innerText = "";
+            formErrorEquipmentStatus.innerText = "";
+            modalTitle.innerText = "Add Equipment";
+            modalBtn.innerText = "Add Equipment";
+            equipmentModal.style.display = "flex";
+        });
+
+        function openEditModal(equipment){
+            editMode = true;
+            editEquipmentId = equipment.equipment_id;
+            equipmentNameInput.value = equipment.equipment_name;
+            equipmentDescriptionInput.value = equipment.equipment_desc;
+            equipmentStatusInput.value = equipment.equipment_status;
+            formErrorEquipmentName.innerText = "";
+            formErrorEquipmentDescription.innerText = "";
+            formErrorEquipmentStatus.innerText = "";
+            modalTitle.innerText = "Edit Equipment";
+            modalBtn.innerText = "Update Equipment";
+            equipmentModal.style.display = "flex";
+        }
+
+        closeModal.addEventListener("click", () => {
+            equipmentModal.style.display = "none";
+        });
+
+        addEquipmentForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const equipmentName = equipmentNameInput.value.trim();
+            const equipmentDescription = equipmentDescriptionInput.value.trim();
+            const equipmentStatus = equipmentStatusInput.value;
+
+            formErrorEquipmentName.innerText = "";
+            formErrorEquipmentDescription.innerText = "";
+            formErrorEquipmentStatus.innerText = "";
+
+            if(equipmentName.length < 3){
+                formErrorEquipmentName.innerText = "Equipment name must be at least 3 characters";
+                return;
+            }
+
+            if(equipmentDescription.length < 10){
+                formErrorEquipmentDescription.innerText = "Equipment desciption must be at least 10 characters";
+                return;
+            }
+
+            if (!equipmentStatus) {
+                formErrorEquipmentStatus.innerText = "Please select a status";
+                return;
+            }
+
+            try {
+                let url = `${API}/equipments`;
+                let method = "POST";
+                if(editMode && editEquipmentId){
+                    url = `${API}/equipments/${editEquipmentId}`;
+                    method = "PUT";
+                }
+                
+                const res = await fetch(url, {
+                    method,
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ equipmentName, equipmentDescription, equipmentStatus })
+                });
+
+                const data = await res.json();
+                if(!res.ok){
+                    showFeedback("error", "Error", data.message || "Something went wrong.");
+                } else {
+                    showFeedback("success", "Success!", editMode ? "Equipment updated successfully!" : "Equipment added successfully!");
+                }
+                equipmentModal.style.display = "none";
+                fetchEquipments();
+            } catch(err){
+                console.error(err);
+                showFeedback("error", "Network Error", "Unable to connect to the server.");
+            }
+        });
+
+        equipmentModal.addEventListener("click", (e) => {
+            if(e.target === equipmentModal){
+                equipmentModal.style.display = "none";
+            }
+        });
+        
+        searchInput.addEventListener("input", (e) => {
+            const term = e.target.value.toLowerCase();
+            
+            equipments = fullEquipments.filter(equipment => {
+                const nameMatch = equipment.equipment_name.toLowerCase().includes(term);
+                const descMatch = (equipment.equipment_desc || "").toLowerCase().includes(term);
+                return nameMatch || descMatch;
+            });
+
+            currentPage = 1;
+            renderTable();
+        });
+        
+        fetchEquipments();
+        initUserProfile();
+        fetchNotifications();
+    </script>
+</body>
+</html>

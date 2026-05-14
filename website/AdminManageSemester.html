@@ -1,0 +1,565 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="NewStyle.css">
+    <style>
+        .firstColumn {
+          width: 20px;
+        }
+        .lastColumnTh, .lastColumn {
+            width: 170px;
+            text-align: center;
+        }
+        .semBtn {
+            display:inline-block;
+            padding: 8px 15px;
+            border-radius:6px;
+            font-size:13px;
+            cursor: pointer;
+        }
+        .semActive {
+            background:green;
+            color:white;
+            border:1px solid #c6e6c1;
+            width: 70px;
+            margin-right: 5px;
+        }
+        .semSetActive {
+            background:#fff3cd;
+            color:#7d6000;
+            border:1px solid #f1e0a8;
+            margin-right: 5px;
+        }
+        .semEditButton {
+            padding: 8px 15px;
+            background: #1e3c72;
+            border: none;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .semEditButton:hover {
+            transform: scale(1.05);
+        }
+        @media (max-width: 768px) {
+            th:nth-child(1), td:nth-child(1) { 
+                display: table-cell;
+            }
+
+            th:nth-child(2), td:nth-child(2),
+            th:nth-child(3), td:nth-child(3),
+            th:nth-child(4), td:nth-child(4) {
+                display: none;
+            }
+
+            td.data-cell {
+                white-space: normal;
+                line-height: 1.4rem;
+            }
+            th.lastColumnTh,
+            td.lastColumn {
+                display: table-cell !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <aside id="sidebar">
+        <nav>
+            <div class="navHeader">
+                <p class="navHeaderTitle">Admin Panel</p>
+                <button id="menuBtn" class="menuBtn">☰</button>
+            </div>
+            <a class="navLink" href="AdminDashboard.html"><i class="fas fa-tachometer-alt"></i>Dashboard</a>
+            <a class="navLink" href="AdminManageUser.html"><i class="fas fa-users"></i>Users</a>
+            <a class="navLink" href="AdminManageRoom.html"><i class="fas fa-door-open"></i>Rooms</a>
+            <a class="navLink" href="AdminManageRoomReservation.html"><i class="fas fa-calendar-check"></i>Room Reservation</a>
+            <a class="navLink" href="AdminManageEquipment.html"><i class="fas fa-boxes"></i>Equipments</a>
+            <a class="navLink" href="AdminManageEquipmentReservation.html"><i class="fas fa-tools"></i>Equipment Reservation</a>
+            <a class="navLink active" href="AdminManageSemester.html"><i class="fas fa-calendar-alt"></i>Semesters</a>
+            <a class="navLink" href="AdminManageSubject.html"><i class="fas fa-book"></i>Subjects</a>
+            <a class="navLink" href="AdminManageYearSection.html"><i class="fas fa-layer-group"></i>Year & Sections</a>
+        </nav>
+    </aside>
+
+    <div id="overlay" class="overlay"></div>
+
+    <main id="main">
+        <div id="mainHeader">
+
+            <div class="mainHeaderLeft">
+                <button id="menuBtn2" class="menuBtn2">☰</button>
+                <h3 class="mainHeaderLeftTitle">AWE-PFRUMS</h3>
+            </div>
+
+            <div class="searchContainer">
+                <i class="fa-solid fa-magnifying-glass" id="searchIcon"></i>
+                <input id="searchInput" type="search" placeholder="Search...">
+            </div>
+
+            <div class="mainHeaderRight">
+                <!-- Notification Button -->
+                <div class="notif-container" id="notif-bell">
+                        <i class="fas fa-bell"></i> <span id="notif-count" class="badge">0</span>
+                    <div id="notif-dropdown" class="dropdown hidden">
+                        <div class="dropdown-header">Notifications</div>
+                        <ul id="notif-list"></ul>
+                    </div>
+                </div>
+
+                <!-- Profile Dropdown -->
+                <div class="profile-container">
+                    <div class="profile-avatar" id="profileAvatar">a</div>
+
+                    <div class="profile-dropdown" id="profileDropdown">
+                        <div class="profile-info">
+                            <div class="mini-profile-avatar" id="miniProfileAvatar">A</div>
+                            <div class="sub-profile-info">
+                                <div class="profile-name" id="profileName">Shernan  C. Iglesia</div>
+                                <div class="profile-role" id="profileRole">Admin</div>
+                            </div>
+                        </div>
+                        <a href="AdminChangePassword.html" class="dropdown-item">
+                            <i class="fas fa-key"></i>
+                            Change Password
+                        </a>
+                        <a href="#" class="dropdown-item" onclick="logout()">
+                            <i class="fas fa-sign-out-alt"></i>
+                            Logout
+                        </a>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <div class="mainContent">
+            <div class="mainContentHeader">
+                <p class="mainContentHeaderText"><i class="fas fa-calendar-alt"></i> Semester Management</p>
+                <button class="mainContentHeaderText" id="addButton">
+                    <i class="fa-solid fa-plus"></i> Add Semester</button>
+            </div>
+
+            <table>
+                <thead>
+                    <tr>
+                        <th>Semester</th>
+                        <th>School Year</th>
+                        <th>Start Date</th>
+                        <th>End Date</th>
+                        <th class="lastColumnTh">Action</th>
+                    </tr>
+                </thead>
+
+                <tbody id="dataTableBody"></tbody>
+            </table>
+
+            <div class="pagination-container">
+                <div class="pagination-info">
+                    Showing <span id="startIndex">0</span> to <span id="endIndex">0</span> of <span id="totalItems">0</span> semesters
+                </div>
+                <div class="pagination-controls" id="paginationControls">
+                </div>
+            </div>
+        </div>
+
+        <div id="feedbackContainer"></div>
+        <div id="logoutContainer"></div>
+
+        <div id="semesterModal" class="custom-modal">
+            <div class="modal-content">
+                <span id="closeModal" class="close-btn">&times;</span>
+                <h3 id="modalTitle" class="modal-title">Add Semester</h3>
+
+                <form id="addSemesterForm">
+
+                    <label>Semester</label>
+                    <select id="semester" class="input-field input-field-picker">
+                        <option value="">Select semester</option>
+                        <option value="1st Semester">1st Semester</option>
+                        <option value="2nd Semester">2nd Semester</option>
+                        <option value="Summer">Summer</option>
+                    </select>
+                    <p id="formErrorSemester" class="error-msg"></p>
+
+                    <label>School Year</label>
+                    <input type="text" id="schoolYear" class="input-field" placeholder="2024-2025">
+                    <p id="formErrorSchoolYear" class="error-msg"></p>
+
+                    <label>Start Date</label>
+                    <input id="startDate" type="date" class="input-field">
+                    <p id="formErrorStartDate" class="error-msg"></p>
+
+                    <label>End Date</label>
+                    <input id="endDate" type="date" class="input-field">
+                    <p id="formErrorEndDate" class="error-msg"></p>
+
+                    <button type="submit" class="modal-btn" id="modalBtn">Add Semester</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="deleteModal" class="confirm-modal">
+            <div class="confirm-box">
+                <i id="deleteIcon" class="bi bi-trash-fill confirm-icon"></i>
+
+                <h3 id="confirm-title" class="confirm-title">Delete User(s)</h3>
+                <p id="confirmText" class="confirm-message">
+                    Are you sure you want to delete selected users?
+                </p>
+
+                <div class="confirm-actions">
+                    <button id="confirmCancel" class="confirm-btn cancel-btn">Cancel</button>
+                    <button id="confirmYes" class="confirm-btn yes-btn">Delete</button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+    <script src="NewScript.js"></script>
+    <script>
+        const API = "http://localhost:5000";
+        const token = localStorage.getItem("accessToken");
+        const role = localStorage.getItem("userRole");
+
+        fetch("Modal.html")
+        .then(res => res.text())
+        .then(html => {
+            document.getElementById("feedbackContainer").innerHTML = html;
+            document.getElementById("logoutContainer").innerHTML = html;
+
+            if (!token || role !== "admin") {
+                showFeedback("warning", "Access denied.", "Admins only!");
+
+                setTimeout(() => {
+                    window.location.href = "Login.html";
+                }, 1500);
+            }
+        });
+
+        window.addEventListener("resize", () => {
+           renderTable();
+        });
+
+        let semesters = [];
+        let fullSemesters = [];
+
+        const dataTableBody = document.getElementById("dataTableBody");
+        const searchInput = document.getElementById("searchInput");
+        const selectAllCheckbox = document.getElementById("selectAll");
+        const deleteButton = document.getElementById("deleteButton");
+        const addButton = document.getElementById("addButton");
+
+        const modalTitle = document.getElementById("modalTitle");
+        const modalBtn = document.getElementById("modalBtn");
+        const semesterModal = document.getElementById("semesterModal");
+        const closeModal = document.getElementById("closeModal");
+        const addSemesterForm = document.getElementById("addSemesterForm");
+        const semesterInput = document.getElementById("semester");
+        const schoolYearInput = document.getElementById("schoolYear");
+        const startDateInput = document.getElementById("startDate");
+        const endDateInput = document.getElementById("endDate");
+        const formErrorSemester = document.getElementById("formErrorSemester");
+        const formErrorSchoolYear = document.getElementById("formErrorSchoolYear");
+        const formErrorStartDate = document.getElementById("formErrorStartDate");
+        const formErrorEndDate = document.getElementById("formErrorEndDate");
+
+        let editMode = false;
+        let editSemesterId = null;
+
+        function formatDate(date){
+            if(!date) return '';
+            const d = new Date(date);
+            if(isNaN(d)) return date;
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            const formattedDate = new Intl.DateTimeFormat('en-US', options).format(d);
+            return formattedDate;
+        }
+        
+        async function fetchSemesters() {
+            try {
+                const semRes = await fetch(`${API}/sem`);
+                if(semRes.ok){
+                    semesters = await semRes.json();
+                    fullSemesters = [...semesters];
+                    renderTable();
+                }
+
+            } catch(err){
+                console.error("Error fetching data:", err);
+                showFeedback("error", "Network Error", "Unable to connect to the server.");
+            }
+        }
+
+        function renderTable() {
+            const dataTableBody = document.getElementById("dataTableBody");
+            dataTableBody.innerHTML = "";
+            const isMobile = window.innerWidth < 768;
+
+            const totalItems = semesters.length;
+            const totalPages = Math.ceil(totalItems / rowsPerPage);
+            
+            if (currentPage > totalPages) currentPage = totalPages || 1;
+
+            const start = (currentPage - 1) * rowsPerPage;
+            const end = start + rowsPerPage;
+            const paginatedSemesters = semesters.slice(start, end);
+
+            paginatedSemesters.forEach(semester => {
+                const tr = document.createElement("tr");
+
+                if (isMobile) {
+                    const tdCombined = document.createElement("td");
+
+                    tdCombined.innerHTML = `
+                        <div class="data-cell">${semester.sem_semester}<br>
+                            ${semester.sem_school_year}<br>
+                            <small>
+                                ${formatDate(semester.sem_start_date)}<br>
+                                ${formatDate(semester.sem_end_date)}
+                            <small>
+                        </div>    
+                    `;
+
+                    tr.appendChild(tdCombined);
+
+                } else {
+                    const tdSemester = document.createElement("td");
+                    tdSemester.innerText = semester.sem_semester;
+                    tr.appendChild(tdSemester);
+
+                    const tdSchoolYear = document.createElement("td");
+                    tdSchoolYear.innerText = semester.sem_school_year;
+                    tr.appendChild(tdSchoolYear);
+
+                    const tdStartDate = document.createElement("td");
+                    tdStartDate.innerText = formatDate(semester.sem_start_date);
+                    tr.appendChild(tdStartDate);
+
+                    const tdEndDate = document.createElement("td");
+                    tdEndDate.innerText = formatDate(semester.sem_end_date);
+                    tr.appendChild(tdEndDate);
+                }
+
+                const tdAction = document.createElement("td");
+                tdAction.classList.add("lastColumn", "data-cell");
+                tdAction.style.whiteSpace='nowrap';
+
+                let setBtn = document.createElement("button");
+                if(semester.sem_active) {
+                    setBtn.innerText = "Active";
+                    setBtn.disabled = true;
+                    setBtn.classList.add("semBtn", "semActive");
+                    setBtn.style.cursor='default';
+                }else{
+                    setBtn.innerText = "Set Active";
+                    setBtn.classList.add("semBtn","semSetActive");
+                    setBtn.addEventListener("click", (e) => {
+                        e.stopPropagation();
+                        setActive(semester.sem_id);
+                    });
+                }
+                
+
+                const editBtn = document.createElement("button");
+                editBtn.innerHTML = '<i class="fa-solid fa-pen-to-square"></i> Edit';
+                editBtn.classList.add("semBt","semEditButton");
+                editBtn.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    openEditModal(semester);
+                });
+
+                tdAction.appendChild(setBtn);
+                tdAction.appendChild(editBtn);
+                tr.appendChild(tdAction);
+
+                dataTableBody.appendChild(tr);
+            });
+
+            updatePaginationUI(totalItems, totalPages);
+        }
+
+        async function setActive(id){
+            showSetActiveConfirm(0, async () => {
+                try{
+                    const res = await fetch(`${API}/sem/${id}/setActive`, { method: 'PUT' });
+                    const data = await res.json().catch(()=>({}));
+                    if(!res.ok) {
+                        return showFeedback("error", "Error", data.message || "Something went wrong.");
+                    }else{
+                        showFeedback("success", "Success!", "Set semester active successfully!");
+                    }
+                    await fetchSemesters();
+                }catch(err){
+                    console.error(err);
+                    showFeedback("error", "Network Error", "Unable to connect to the server.");
+                }
+            });
+        }
+
+        function showSetActiveConfirm(count, onConfirm) {
+            if(count !== 0){
+                return;
+            }
+            const modal = document.getElementById("deleteModal");
+            const deleteIcon = document.getElementById("deleteIcon");
+            const title = document.getElementById("confirm-title");
+            const text = document.getElementById("confirmText");
+            const yesBtn = document.getElementById("confirmYes");
+            const cancelBtn = document.getElementById("confirmCancel");
+            
+            deleteIcon.style.display = "none";
+            title.textContent = `Semester`;
+            text.textContent = `Are you sure you want to set this semester as active?`;
+            yesBtn.textContent = `Set Active`;
+            yesBtn.style.backgroundColor = "green";
+
+            modal.style.display = "flex";
+
+            yesBtn.onclick = () => {
+                modal.style.display = "none";
+                onConfirm();
+            };
+
+            cancelBtn.onclick = () => {
+                modal.style.display = "none";
+            };
+
+            modal.onclick = (e) => {
+                if (e.target === modal) modal.style.display = "none";
+            };
+        }
+
+        addButton.addEventListener("click", () => {
+            editMode = false;
+            editSemesterId = null;
+            semesterInput.value = "";
+            schoolYearInput.value = "";
+            startDateInput.value = "";
+            endDateInput.value = "";
+            formErrorSemester.innerText = "";
+            formErrorSchoolYear.innerText = "";
+            formErrorStartDate.innerText = "";
+            formErrorEndDate.innerText = "";
+            modalTitle.innerText = "Add Semester";
+            modalBtn.innerText = "Add Semester";
+            semesterModal.style.display = "flex";
+        });
+
+        function openEditModal(semester){
+            editMode = true;
+            editSemesterId = semester.sem_id;
+            semesterInput.value = semester.sem_semester;
+            schoolYearInput.value = semester.sem_school_year;
+            startDateInput.value = semester.sem_start_date ? (new Date(semester.sem_start_date).toISOString().slice(0,10)) : '';
+            endDateInput.value = semester.sem_end_date ? (new Date(semester.sem_end_date).toISOString().slice(0,10)) : '';
+            formErrorSemester.innerText = "";
+            formErrorSchoolYear.innerText = "";
+            formErrorStartDate.innerText = "";
+            formErrorEndDate.innerText = "";
+            modalTitle.innerText = "Edit Semester";
+            modalBtn.innerText = "Update Semester";
+            semesterModal.style.display = "flex";
+        }
+
+        closeModal.addEventListener("click", () => {
+            semesterModal.style.display = "none";
+        });
+
+        addSemesterForm.addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const semester = semesterInput.value.trim();
+            const schoolYear = schoolYearInput.value.trim();
+            const startDate = startDateInput.value;
+            const endDate = endDateInput.value;
+
+            formErrorSemester.innerText = "";
+            formErrorSchoolYear.innerText = "";
+            formErrorStartDate.innerText = "";
+            formErrorEndDate.innerText = "";
+
+            if (!semester) {
+                formErrorSemester.innerText = "Please select a semester";
+                return;
+            }
+
+            if (!schoolYear) {
+                formErrorSchoolYear.innerText = "Please set school year";
+                return;
+            }
+
+            if (!startDate) {
+                formErrorStartDate.innerText = "Please select start date";
+                return;
+            }
+
+            if (!endDate) {
+                formErrorEndDate.innerText = "Please select end date";
+                return;
+            }
+
+            if(startDate && endDate && new Date(endDate) <= new Date(startDate)) {
+                formErrorEndDate.innerText = "End must be after start";
+                return;
+            }
+
+            try {
+                let url = `${API}/sem`;
+                let method = "POST";
+                if(editMode && editSemesterId){
+                    url = `${API}/sem/${editSemesterId}`;
+                    method = "PUT";
+                }
+
+                const res = await fetch(url, {
+                    method,
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ semester, schoolYear, startDate, endDate })
+                });
+                const data = await res.json();
+                if(!res.ok){
+                    return showFeedback("error", "Error", data.message || "Something went wrong.");
+                } else {
+                    showFeedback("success", "Success!", editMode? "Semester updated successfully!" : "Semester added successfully!");
+                }
+                semesterModal.style.display = "none";
+                fetchSemesters();
+            } catch(err){
+                console.error(err);
+                showFeedback("error", "Network Error", "Unable to connect to the server.");
+            }
+        });
+
+        semesterModal.addEventListener("click", (e) => {
+            if(e.target === semesterModal){
+                semesterModal.style.display = "none";
+            }
+        });
+
+        searchInput.addEventListener("input", (e) => {
+            const term = e.target.value.toLowerCase();
+            
+            semesters = fullSemesters.filter(semester => {
+                const semMatch = semester.sem_semester.toLowerCase().includes(term);
+                const schoolYearMatch = (semester.sem_school_year || "").toLowerCase().includes(term);
+                const startYearMatch = (semester.sem_start_date || "").toLowerCase().includes(term);
+                const endYearMatch = (semester.sem_end_date || "").toLowerCase().includes(term);
+                return semMatch || schoolYearMatch || startYearMatch || endYearMatch;
+            });
+
+            currentPage = 1;
+            renderTable();
+        });
+
+        fetchSemesters();
+        initUserProfile();
+        fetchNotifications();
+    </script>
+</body>
+</html>
